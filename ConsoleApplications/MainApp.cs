@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace ConsoleApplications
 {
@@ -6,9 +7,19 @@ namespace ConsoleApplications
 	{
 		static void Main( string[] args )
 		{
-			var result = Task01_Solution.Solution( 5, new[] { 1, 2, 3 } );
 
-			Console.WriteLine( string.Join( ", ", result ) );
+		}
+
+		private static void Task01_MaxCounters()
+		{
+			var inputArray = Console.ReadLine()
+							.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
+							.Select( int.Parse )
+							.ToArray();
+
+			var result = Task01_Solution.Solution( 5, inputArray );
+
+			Console.WriteLine( "(" + string.Join( ", ", result ) + ")" );
 		}
 	}
 }
