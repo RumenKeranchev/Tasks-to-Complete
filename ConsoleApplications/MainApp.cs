@@ -7,19 +7,28 @@ namespace ConsoleApplications
 	{
 		static void Main( string[] args )
 		{
-
+			
 		}
 
 		private static void Task01_MaxCounters()
 		{
+			var n = Convert.ToInt32( Console.ReadLine() );
+
 			var inputArray = Console.ReadLine()
-							.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
-							.Select( int.Parse )
-							.ToArray();
+				.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
+				.Select( int.Parse )
+				.ToArray();
 
-			var result = Task01_Solution.Solution( 5, inputArray );
+			try
+			{
+				var result = Task01_Solution.Solution( n, inputArray );
 
-			Console.WriteLine( "(" + string.Join( ", ", result ) + ")" );
+				Console.WriteLine( "(" + string.Join( ", ", result ) + ")" );
+			}
+			catch ( Exception e )
+			{
+				Console.WriteLine( e.Message );
+			}
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace ConsoleApplications
 {
@@ -6,6 +7,8 @@ namespace ConsoleApplications
 	{
 		public static int[] Solution( int n, int[] a )
 		{
+			ValidateInput( n, a );
+
 			var result = new int[ n ];
 
 			foreach ( var k in a )
@@ -27,6 +30,24 @@ namespace ConsoleApplications
 			}
 
 			return result;
+		}
+
+		private static void ValidateInput( int n, int[] a )
+		{
+			if ( n < 1 || n > 100000 )
+			{
+				throw new ArgumentException( "Invalid input!" );
+			}
+
+			if ( a.Length < 1 || a.Length > 100000 )
+			{
+				throw new ArgumentException( "Invalid input!" );
+			}
+
+			if ( Array.Exists( a, arr => arr < 1 || arr > n + 1 ) )
+			{
+				throw new ArgumentException( "Invalid input!" );
+			}
 		}
 	}
 }
