@@ -10,6 +10,25 @@ namespace ConsoleApplications
 			
 		}
 
+		private static void Task02_GenomicRangeQuery()
+		{
+			var s = Console.ReadLine();
+
+			var p = Console.ReadLine()
+				.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
+				.Select( int.Parse )
+				.ToArray();
+
+			var q = Console.ReadLine()
+				.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
+				.Select( int.Parse )
+				.ToArray();
+
+			var result = Task02_Solution.Solution( s, p, q );
+
+			Console.WriteLine( string.Join( " ", result ) );
+		}
+
 		private static void Task01_MaxCounters()
 		{
 			var n = Convert.ToInt32( Console.ReadLine() );
