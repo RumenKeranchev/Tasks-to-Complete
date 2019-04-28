@@ -10,6 +10,25 @@ namespace ConsoleApplications
 			
 		}
 
+		private static void Task05_MinAbsSum()
+		{
+			var input = Console.ReadLine()
+							.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
+							.Select( int.Parse )
+							.ToArray();
+
+			try
+			{
+				var result = Task05_Solution.Solution( input );
+
+				Console.WriteLine( result );
+			}
+			catch ( Exception e )
+			{
+				Console.WriteLine( e.Message );
+			}
+		}
+
 		private static void Task02_GenomicRangeQuery()
 		{
 			var s = Console.ReadLine();
@@ -24,9 +43,16 @@ namespace ConsoleApplications
 				.Select( int.Parse )
 				.ToArray();
 
-			var result = Task02_Solution.Solution( s, p, q );
+			try
+			{
+				var result = Task02_Solution.Solution( s, p, q );
 
-			Console.WriteLine( string.Join( " ", result ) );
+				Console.WriteLine( string.Join( " ", result ) );
+			}
+			catch ( Exception e )
+			{
+				Console.WriteLine( e.Message );
+			}
 		}
 
 		private static void Task01_MaxCounters()
