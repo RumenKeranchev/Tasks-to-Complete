@@ -7,15 +7,28 @@ namespace ConsoleApplications
 	{
 		static void Main( string[] args )
 		{
-			
+
+		}
+
+		private static void Task07_CountNonDivisible()
+		{
+			var input = ReadInputArray();
+
+			try
+			{
+				var restult = Task07_Solution.Solution( input );
+
+				Console.WriteLine( string.Join( " ", restult ) );
+			}
+			catch ( Exception e )
+			{
+				Console.WriteLine( e.Message );
+			}
 		}
 
 		private static void Task05_MinAbsSum()
 		{
-			var input = Console.ReadLine()
-							.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
-							.Select( int.Parse )
-							.ToArray();
+			var input = ReadInputArray();
 
 			try
 			{
@@ -33,15 +46,9 @@ namespace ConsoleApplications
 		{
 			var s = Console.ReadLine();
 
-			var p = Console.ReadLine()
-				.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
-				.Select( int.Parse )
-				.ToArray();
+			var p = ReadInputArray();
 
-			var q = Console.ReadLine()
-				.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
-				.Select( int.Parse )
-				.ToArray();
+			var q = ReadInputArray();
 
 			try
 			{
@@ -58,15 +65,11 @@ namespace ConsoleApplications
 		private static void Task01_MaxCounters()
 		{
 			var n = Convert.ToInt32( Console.ReadLine() );
-
-			var inputArray = Console.ReadLine()
-				.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
-				.Select( int.Parse )
-				.ToArray();
+			int[] input = ReadInputArray();
 
 			try
 			{
-				var result = Task01_Solution.Solution( n, inputArray );
+				var result = Task01_Solution.Solution( n, input );
 
 				Console.WriteLine( "(" + string.Join( ", ", result ) + ")" );
 			}
@@ -74,6 +77,14 @@ namespace ConsoleApplications
 			{
 				Console.WriteLine( e.Message );
 			}
+		}
+
+		private static int[] ReadInputArray()
+		{
+			return Console.ReadLine()
+				.Split( new[] { " ", ", " }, StringSplitOptions.RemoveEmptyEntries )
+				.Select( int.Parse )
+				.ToArray();
 		}
 	}
 }
