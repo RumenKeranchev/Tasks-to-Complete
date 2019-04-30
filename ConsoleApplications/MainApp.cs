@@ -42,6 +42,22 @@ namespace ConsoleApplications
 			}
 		}
 
+		private static void Task03_Triangle()
+		{
+			var input = ReadInputArray();
+
+			try
+			{
+				var result = Task03_Solution.Solution( input );
+
+				Console.WriteLine( result );
+			}
+			catch ( Exception e )
+			{
+				Console.WriteLine( e.Message );
+			}
+		}
+
 		private static void Task02_GenomicRangeQuery()
 		{
 			var s = Console.ReadLine();
