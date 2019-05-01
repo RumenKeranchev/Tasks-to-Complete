@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace WebBlog.Data
+namespace WebBlog.Data.Blog
 {
 	public class BlogEntry
 	{
@@ -20,5 +21,7 @@ namespace WebBlog.Data
 		public User User { get; set; }
 
 		public DateTime CreationDate { get; set; } = DateTime.UtcNow;
+
+		public IEnumerable<Comment> Comments { get; set; } = new List< Comment >();
 	}
 }

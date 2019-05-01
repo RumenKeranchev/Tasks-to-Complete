@@ -13,12 +13,14 @@ using Microsoft.EntityFrameworkCore;
 using WebBlog.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebBlog.Services.Implementations;
+using WebBlog.Services.Interfaces;
 
 namespace WebBlog
 {
 	public class Startup
 	{
-		public Startup(IConfiguration configuration)
+		public Startup( IConfiguration configuration )
 		{
 			Configuration = configuration;
 		}
@@ -26,44 +28,45 @@ namespace WebBlog
 		public IConfiguration Configuration { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services)
+		public void ConfigureServices( IServiceCollection services )
 		{
-			services.Configure<CookiePolicyOptions>(options =>
+			services.Configure< CookiePolicyOptions >( options =>
 			{
 				// This lambda determines whether user consent for non-essential cookies is needed for a given request.
 				options.CheckConsentNeeded = context => true;
 				options.MinimumSameSitePolicy = SameSiteMode.None;
-			});
+			} );
 
-			services.AddDbContext<WebBlogDbContext>(options =>
+			services.AddDbContext< WebBlogDbContext >( options =>
 				options.UseSqlServer(
-					Configuration.GetConnectionString("DefaultConnection")));
-			services.AddDefaultIdentity<User>( options =>
+					Configuration.GetConnectionString( "DefaultConnection" ) ) );
+
+			services.AddDefaultIdentity< User >( options =>
 				{
 					options.Password.RequireDigit = false;
 					options.Password.RequireNonAlphanumeric = false;
 					options.Password.RequireUppercase = false;
 					options.Password.RequireUppercase = false;
 					options.Password.RequiredLength = 4;
-				})
-				.AddDefaultUI(UIFramework.Bootstrap4)
-				.AddEntityFrameworkStores<WebBlogDbContext>();
+				} )
+				.AddDefaultUI( UIFramework.Bootstrap4 )
+				.AddEntityFrameworkStores< WebBlogDbContext >();
 
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
+			services.AddMvc().SetCompatibilityVersion( CompatibilityVersion.Version_2_2 );
+			services.AddTransient< IBlogService, BlogService >();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure( IApplicationBuilder app, IHostingEnvironment env )
 		{
-			if (env.IsDevelopment())
+			if ( env.IsDevelopment() )
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseDatabaseErrorPage();
 			}
 			else
 			{
-				app.UseExceptionHandler("/Home/Error");
+				app.UseExceptionHandler( "/Home/Error" );
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
@@ -74,12 +77,12 @@ namespace WebBlog
 
 			app.UseAuthentication();
 
-			app.UseMvc(routes =>
+			app.UseMvc( routes =>
 			{
 				routes.MapRoute(
 					name: "default",
-					template: "{controller=Home}/{action=Index}/{id?}");
-			});
+					template: "{controller=Home}/{action=Index}/{id?}" );
+			} );
 		}
 	}
 }

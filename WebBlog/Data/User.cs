@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using WebBlog.Data.Blog;
 
 namespace WebBlog.Data
 {
@@ -15,5 +16,7 @@ namespace WebBlog.Data
 		public string LastName { get; set; }
 
 		public IEnumerable< BlogEntry > BlogEntries { get; set; } = new List< BlogEntry >();
+
+		public IEnumerable< Comment > Comments { get; set; } = new List< Comment >();
 	}
 }

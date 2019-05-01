@@ -1,0 +1,26 @@
+﻿@model   WebBlog.Models.Blogs.CreateViewModel 
+
+@{
+    ViewBag.Title = "Create blog entry";
+    Layout = "_Layout";
+}
+
+<h2>Create blog entry</h2>
+
+<div class="col-4">
+    <form asp-action="Post" method="post">
+        <div class="form-group">
+            <label asp-for="Title "></label>
+            <input asp-for="Title " class="form-control"/>
+        </div>
+        <div class="form-group">
+            <label asp-for="Content "></label>
+            <input asp-for="Content " class="form-control"/>
+        </div>
+        <div class="form-group">
+            <label asp-for="CreationDate "></label>
+            <input asp-for="CreationDate " class="form-control"/>
+        </div>
+        <button type="submit" class="btn-dark">Submit</button>
+    </form>
+</div>

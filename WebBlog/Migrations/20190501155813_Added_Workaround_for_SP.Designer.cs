@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebBlog.Data;
 
 namespace WebBlog.Migrations
 {
     [DbContext(typeof(WebBlogDbContext))]
-    partial class WebBlogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190501155813_Added_Workaround_for_SP")]
+    partial class Added_Workaround_for_SP
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -233,6 +235,42 @@ namespace WebBlog.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("WebBlog.Models.Blog.BlogViewModel", b =>
+                {
+                    b.Property<int>("BlogId")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Content");
+
+                    b.Property<DateTime>("CreationDate");
+
+                    b.Property<string>("Title");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("BlogId");
+
+                    b.ToTable("BlogViewModels");
+                });
+
+            modelBuilder.Entity("WebBlog.Models.Blog.CommentViewModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("BlogId");
+
+                    b.Property<string>("Content");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.ToTable("CommentViewModel");
+                });
+
             modelBuilder.Entity("WebBlog.Data.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -308,6 +346,14 @@ namespace WebBlog.Migrations
                     b.HasOne("WebBlog.Data.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("WebBlog.Models.Blog.CommentViewModel", b =>
+                {
+                    b.HasOne("WebBlog.Models.Blog.BlogViewModel")
+                        .WithMany("Comments")
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }
