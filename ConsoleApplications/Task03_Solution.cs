@@ -7,7 +7,7 @@ namespace ConsoleApplications
 	{
 		public static int Solution( int[] a )
 		{
-			if ( a.Length == 0 )
+			if ( a.Length == 0 || a.Length < 3 )
 			{
 				return 0;
 			}
