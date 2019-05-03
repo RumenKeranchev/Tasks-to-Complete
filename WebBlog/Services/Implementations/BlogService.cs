@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -27,8 +28,21 @@ namespace WebBlog.Services.Implementations
 
 		public void Create( CreateViewModel model )
 		{
-			this.db.BlogEntries.FromSql(
-				$"CreateBlogEntry {model.Title}, {model.Content}, {model.CreationDate}, {model.UserId}" );
+//			NOT WORKING!!!!
+//			var query = "CreateBlogEntry #Title, #Content, UserId";
+//
+//			using ( var connection = ( SqlConnection ) this.db.Database.GetDbConnection() )
+//			using ( var cmd = new SqlCommand( query, connection ) )
+//			{
+//				cmd.Parameters.AddWithValue( "#Title", model.Title );
+//				cmd.Parameters.AddWithValue( "#Content", model.Content );
+//				cmd.Parameters.AddWithValue( "#UserId", model.UserId );
+//				connection.Open();
+//				var a = cmd.ExecuteNonQuery();
+//			}
+
+			var a = this.db.BlogEntries.FromSql(
+				$"CreateBlogEntry {model.Title}, {model.Content}, {model.UserId}" );
 
 			this.db.SaveChanges();
 		}
