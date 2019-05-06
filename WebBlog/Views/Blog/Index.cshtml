@@ -1,17 +1,42 @@
-﻿@model  WebBlog.Models.Blogs.BlogViewModel 
+﻿@model         WebBlog.Models.Blogs.BlogViewModel 
 
 @{
     ViewBag.Title = "All Blog Items";
     Layout = "_Layout";
 }
 
-<h2 style="padding-bottom: 100px; text-align: center">All Blog Items</h2>
+<style>
+    .blog-entry:hover {
+        background: lightgray;
+    }
 
-@foreach ( var entry in this.Model.BlogEntries )
+    .blog-entry:hover a {
+        color: darkorange;
+        text-decoration: none;
+        font-size: 1.8rem;
+    }
+
+    a { color: black }
+</style>
+
+<h2 style="padding-bottom: 100px; text-align: center">All Blog Items</h2>
+@for ( int i = 0 ; i < this.Model.BlogEntries.Count() ; i += 3 )
 {
-    <div style="display: table-cell; padding-right: 40px; text-align: center">
-        <h3>@entry.Title</h3>
-        <div>@entry.Content</div>
-        <div>@entry.CreationDate</div>
+    <div class="row p-5">
+        @foreach ( var entry in this.Model.BlogEntries.Skip( i ).Take( 3 ) )
+        {
+            <div class="col-md-4 blog-entry">
+                <h3>
+                    <a asp-action="Blog" asp-route-id="@entry.Id">@entry.Title</a>
+                </h3>
+                <div>@( entry.Content.Length < 80 ? entry.Content : entry.Content.Substring( 0, 80 ) + "..." )</div>
+                <div>@entry.CreationDate</div>
+                <form asp-action="Like" method="post" style="display: inline-block" class="pr-2">
+                    <input type="hidden" name="blogId" value="@entry.Id"/>
+                    <button type="submit" id="like" class="btn-sm btn-warning">Like</button>
+                </form>
+                <div style="display: inline-block" class="pr-1 pt-1">@entry.Likes</div>
+            </div>
+        }
     </div>
 }

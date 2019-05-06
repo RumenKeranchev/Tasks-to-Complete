@@ -14,6 +14,8 @@ namespace WebBlog.Data
 		
 		public DbSet< Comment > Comments { get; set; }
 
+		public DbQuery<JsonResult> JsonResults { get; set; }
+
 		public WebBlogDbContext( DbContextOptions< WebBlogDbContext > options )
 			: base( options )
 		{

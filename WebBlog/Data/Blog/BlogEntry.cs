@@ -13,7 +13,6 @@ namespace WebBlog.Data.Blog
 		public string Title { get; set; }
 
 		[ MinLength( 10 ) ]
-		[ MaxLength( 500 ) ]
 		public string Content { get; set; }
 
 		public string UserId { get; set; }
@@ -23,5 +22,7 @@ namespace WebBlog.Data.Blog
 		public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
 		public IEnumerable<Comment> Comments { get; set; } = new List< Comment >();
+
+		public int Likes { get; set; }
 	}
 }

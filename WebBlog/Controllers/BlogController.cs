@@ -21,11 +21,11 @@ namespace WebBlog.Controllers
 		}
 
 		// GET
-		public async Task< IActionResult > Index()
+		public IActionResult Index()
 		{
-			var blogs = await this.blogService.All();
+			var blogs = this.blogService.All();
 
-			return View( new BlogViewModel()
+			return this.View( new BlogViewModel()
 			{
 				BlogEntries = blogs
 			} );
@@ -38,6 +38,7 @@ namespace WebBlog.Controllers
 		}
 
 		[ Authorize ]
+		[ HttpPost ]
 		public IActionResult Post( CreateViewModel model )
 		{
 			model.UserId = this.userManager.GetUserId( this.HttpContext.User );
@@ -46,5 +47,23 @@ namespace WebBlog.Controllers
 
 			return this.RedirectToAction( "Index" );
 		}
+
+		[ Authorize ]
+		public IActionResult Like( int blogId )
+		{
+			this.blogService.Like( blogId );
+
+			return this.RedirectToAction( "Index" );
+		}
+
+		public IActionResult Blog( int id )
+		{
+			var blog = this.blogService.BlogWithComments( id );
+
+			return this.View( blog );
+		}
+
+		//todo: users can add comments, update their settings without changing the username
+	   //todo: propper UI
 	}
 }

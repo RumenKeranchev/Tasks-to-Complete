@@ -1,0 +1,22 @@
+﻿@model    BlogWithCommentsViewModel 
+
+@{
+    this.ViewBag.Title = this.Model.BlogEntry.Title;
+    this.Layout = "_Layout";
+}
+
+<h2 class="p-5 text-center">@this.Model.BlogEntry.Title</h2>
+
+<div class="pl-5">
+    <div class="pb-2 pl-5">@this.Model.BlogEntry.CreationDate</div>
+    <div class="pb-4 pl-5">@this.Model.BlogEntry.Content</div>
+    <div class="pl-5">Likes: @this.Model.BlogEntry.Likes</div>
+</div>
+
+<h4 class="py-2 pl-5">Comments</h4>
+<div class="pl-5">
+    @foreach ( var commet in this.Model.Comments )
+    {
+        <div class="py-1 pl-5">@commet.Content</div>
+    }
+</div>

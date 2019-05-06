@@ -10,8 +10,8 @@ using WebBlog.Data;
 namespace WebBlog.Migrations
 {
     [DbContext(typeof(WebBlogDbContext))]
-    [Migration("20190501151755_Adding_StoredProcedure_ReturnAllBlogEntries")]
-    partial class Adding_StoredProcedure_ReturnAllBlogEntries
+    [Migration("20190503144639_Added_SP_AddLike")]
+    partial class Added_SP_AddLike
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -201,6 +201,8 @@ namespace WebBlog.Migrations
                         .HasMaxLength(500);
 
                     b.Property<DateTime>("CreationDate");
+
+                    b.Property<int>("Likes");
 
                     b.Property<string>("Title")
                         .HasMaxLength(50);

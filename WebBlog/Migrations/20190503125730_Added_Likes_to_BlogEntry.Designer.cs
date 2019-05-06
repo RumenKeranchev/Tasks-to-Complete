@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebBlog.Data;
 
 namespace WebBlog.Migrations
 {
     [DbContext(typeof(WebBlogDbContext))]
-    partial class WebBlogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190503125730_Added_Likes_to_BlogEntry")]
+    partial class Added_Likes_to_BlogEntry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,7 +197,8 @@ namespace WebBlog.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Content");
+                    b.Property<string>("Content")
+                        .HasMaxLength(500);
 
                     b.Property<DateTime>("CreationDate");
 

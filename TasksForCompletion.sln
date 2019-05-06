@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApplications", "Cons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebBlog", "WebBlog\WebBlog.csproj", "{9702392B-332C-4133-93A7-DCB57FCECFDE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebTradingApp", "WebTradingApp\WebTradingApp.csproj", "{C53C01E1-6BB2-43D5-B1C3-DFC3F9D9B4BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9702392B-332C-4133-93A7-DCB57FCECFDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9702392B-332C-4133-93A7-DCB57FCECFDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9702392B-332C-4133-93A7-DCB57FCECFDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C53C01E1-6BB2-43D5-B1C3-DFC3F9D9B4BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C53C01E1-6BB2-43D5-B1C3-DFC3F9D9B4BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C53C01E1-6BB2-43D5-B1C3-DFC3F9D9B4BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C53C01E1-6BB2-43D5-B1C3-DFC3F9D9B4BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

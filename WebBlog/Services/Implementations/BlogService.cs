@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
 using WebBlog.Data;
 using WebBlog.Data.Blog;
 using WebBlog.Models.Blogs;
@@ -19,32 +19,50 @@ namespace WebBlog.Services.Implementations
 			this.db = db;
 		}
 
-		public async Task< IEnumerable< BlogEntry > > All()
+		public IEnumerable< BlogEntry > All()
 		{
-			return await this.db.BlogEntries
-				.FromSql( "ReturnAllBlogEntriesWithoutComments" )
-				.ToListAsync();
+			return this.db.BlogEntries
+				.FromSql( "ReturnAllBlogEntries" )
+				.ToList();
 		}
 
 		public void Create( CreateViewModel model )
 		{
-//			NOT WORKING!!!!
-//			var query = "CreateBlogEntry #Title, #Content, UserId";
-//
-//			using ( var connection = ( SqlConnection ) this.db.Database.GetDbConnection() )
-//			using ( var cmd = new SqlCommand( query, connection ) )
-//			{
-//				cmd.Parameters.AddWithValue( "#Title", model.Title );
-//				cmd.Parameters.AddWithValue( "#Content", model.Content );
-//				cmd.Parameters.AddWithValue( "#UserId", model.UserId );
-//				connection.Open();
-//				var a = cmd.ExecuteNonQuery();
-//			}
-
-			var a = this.db.BlogEntries.FromSql(
-				$"CreateBlogEntry {model.Title}, {model.Content}, {model.UserId}" );
+			this.db.Database
+				.ExecuteSqlCommand( $"EXECUTE dbo.CreateBlogEntry @p0, @p1, @p2",
+					parameters: new[]
+					{
+						model.Title,
+						model.Content,
+						model.UserId
+					} );
 
 			this.db.SaveChanges();
+		}
+
+		public void Like( int blogId )
+		{
+			this.db.Database
+				.ExecuteSqlCommand( "EXECUTE dbo.[AddLike] @p0", parameters: blogId );
+
+			this.db.SaveChanges();
+		}
+
+		public BlogWithCommentsViewModel BlogWithComments( int id )
+		{
+			var jsonResult = this.db.JsonResults
+				.FromSql( "exec [dbo].[WPT2WB_GetBlogEntryInformation_JSON] {0}", id )
+				.FirstOrDefault()
+				.JSON_Result;
+
+			if ( jsonResult.EndsWith("\"Comments\": ") )
+			{
+				jsonResult += "[] }]";
+			}
+
+			var deserialized = JsonConvert.DeserializeObject< BlogWithCommentsViewModel[] >( jsonResult );
+
+			return deserialized[0];
 		}
 	}
 }
