@@ -4,13 +4,14 @@ namespace Recursion
 {
 	public class SearchForElement
 	{
-		private int mid;
-
 		private int min = 0;
+
+		private int mid;
 
 		public int Find( int[] a, int n, int e )
 		{
 			this.mid = Convert.ToInt32( Math.Floor( ( this.min + ( decimal ) n ) / 2 ) );
+			
 
 			if ( a[ this.mid ] != e )
 			{
@@ -18,16 +19,13 @@ namespace Recursion
 				{
 					this.min = this.mid + 1;
 				}
-				else if ( a[ this.mid ] > e )
+				else
 				{
-					//itgets stuck here
-					this.min = this.mid - 1;
+					n = this.mid - 1;
 				}
 
 				this.Find( a, n, e );
 			}
-
-			//TODO: doesnt work for an array with length > 5
 			return this.mid;
 		}
 	}

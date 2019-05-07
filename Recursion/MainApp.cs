@@ -10,13 +10,15 @@ namespace Recursion
 			Task05_SearchForElement();
 		}
 
-		//works 50%
+		//works 100%
 		private static void Task05_SearchForElement()
 		{
 			var a = Console.ReadLine()
 							.Split(new[] { ", ", " " }, StringSplitOptions.RemoveEmptyEntries)
 							.Select(int.Parse)
 							.ToArray();
+
+			Array.Sort( a );
 
 			var n = int.Parse(Console.ReadLine());
 
