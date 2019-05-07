@@ -20,13 +20,14 @@ namespace Recursion
 				}
 				else if ( a[ this.mid ] > e )
 				{
+					//itgets stuck here
 					this.min = this.mid - 1;
 				}
 
 				this.Find( a, n, e );
 			}
 
-			//TODO: doesnt work for an odd array
+			//TODO: doesnt work for an array with length > 5
 			return this.mid;
 		}
 	}
