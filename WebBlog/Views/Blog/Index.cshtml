@@ -1,4 +1,4 @@
-﻿@model         WebBlog.Models.Blogs.BlogViewModel 
+﻿@model  BlogViewModel 
 
 @{
     ViewBag.Title = "All Blog Items";
@@ -23,7 +23,7 @@
 @for ( int i = 0 ; i < this.Model.BlogEntries.Count() ; i += 3 )
 {
     <div class="row p-5">
-        @foreach ( var entry in this.Model.BlogEntries.Skip( i ).Take( 3 ) )
+        @foreach ( var entry in this.Model.BlogEntries.OrderBy( e => e.CreationDate ).Skip( i ).Take( 3 ) )
         {
             <div class="col-md-4 blog-entry">
                 <h3>

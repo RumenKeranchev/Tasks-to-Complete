@@ -7,6 +7,8 @@ namespace WebBlog.Models.Blogs
 		public Entry BlogEntry { get; set; }
 
 		public Comments[] Comments { get; set; }
+
+		public AddCommentViewModel AddComments{ get; set; }
 	}
 
 	public class Entry

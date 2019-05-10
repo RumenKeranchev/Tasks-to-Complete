@@ -63,7 +63,18 @@ namespace WebBlog.Controllers
 			return this.View( blog );
 		}
 
-		//todo: users can add comments, update their settings without changing the username
-	   //todo: propper UI
+		[ Authorize ]
+		[ HttpPost ]
+		public IActionResult AddComment( BlogWithCommentsViewModel model )
+		{
+			model.AddComments.UserId = this.userManager.GetUserId(this.HttpContext.User);
+
+			this.blogService.AddComment( model.AddComments );
+
+			return this.RedirectToAction( "Blog", new { id = model.AddComments.BlogId } );
+		}
+
+		//todo: User can like a post once
+		//todo: propper UI
 	}
 }

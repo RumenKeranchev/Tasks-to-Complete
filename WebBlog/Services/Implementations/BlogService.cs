@@ -55,14 +55,28 @@ namespace WebBlog.Services.Implementations
 				.FirstOrDefault()
 				.JSON_Result;
 
-			if ( jsonResult.EndsWith("\"Comments\": ") )
+			if ( jsonResult.EndsWith( "\"Comments\": " ) )
 			{
 				jsonResult += "[] }]";
 			}
 
 			var deserialized = JsonConvert.DeserializeObject< BlogWithCommentsViewModel[] >( jsonResult );
 
-			return deserialized[0];
+			return deserialized[ 0 ];
+		}
+
+		public void AddComment( AddCommentViewModel model )
+		{
+			this.db.Database
+				.ExecuteSqlCommand( "EXECUTE [dbo].[AddCommentToBlogEntry] @p0, @p1, @p2",
+					parameters: new object[]
+					{
+						model.Content,
+						model.BlogId,
+						model.UserId
+					} );
+
+			this.db.SaveChanges();
 		}
 	}
 }

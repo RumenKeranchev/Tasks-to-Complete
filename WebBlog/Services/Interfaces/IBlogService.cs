@@ -7,12 +7,14 @@ namespace WebBlog.Services.Interfaces
 {
 	public interface IBlogService
 	{
-		 IEnumerable< BlogEntry > All();
+		IEnumerable< BlogEntry > All();
 
-		void Create(CreateViewModel model);
+		void Create( CreateViewModel model );
 
-		void Like(int blogId);
+		void Like( int blogId );
 
 		BlogWithCommentsViewModel BlogWithComments( int id );
+
+		void AddComment( AddCommentViewModel model );
 	}
 }
