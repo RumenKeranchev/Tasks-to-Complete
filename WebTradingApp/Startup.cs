@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using WebTradingApp.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebTradingApp.Data.Models;
 
 namespace WebTradingApp
 {
@@ -20,7 +21,7 @@ namespace WebTradingApp
 	{
 		public Startup( IConfiguration configuration )
 		{
-			Configuration = configuration;
+			this.Configuration = configuration;
 		}
 
 		public IConfiguration Configuration { get; }
@@ -38,10 +39,9 @@ namespace WebTradingApp
 			#region DBContext config
 
 			services.AddDbContext< WebTradingDbContext >( options =>
-				options.UseSqlServer(
-					Configuration.GetConnectionString( "DefaultConnection" ) ) );
+				options.UseSqlServer( this.Configuration.GetConnectionString( "DefaultConnection" ) ) );
 
-			services.AddDefaultIdentity< IdentityUser >()
+			services.AddIdentity< User, IdentityRole >()
 				.AddDefaultUI( UIFramework.Bootstrap4 )
 				.AddEntityFrameworkStores< WebTradingDbContext >();
 
@@ -70,7 +70,6 @@ namespace WebTradingApp
 			app.UseCookiePolicy();
 
 			app.UseAuthentication();
-			this.CreateUserRoles( serviceProvider ).Wait();
 
 			app.UseMvc( routes =>
 			{
@@ -78,12 +77,14 @@ namespace WebTradingApp
 					name: "default",
 					template: "{controller=Home}/{action=Index}/{id?}" );
 			} );
+
+			this.CreateUserRoles( serviceProvider ).Wait();
 		}
 
 		private async Task CreateUserRoles( IServiceProvider serviceProvider )
 		{
-			var roleManager = serviceProvider.GetService< RoleManager< IdentityRole > >();
-			var userManager = serviceProvider.GetService< UserManager< IdentityUser > >();
+			var roleManager = serviceProvider.GetRequiredService< RoleManager< IdentityRole > >();
+//			var userManager = serviceProvider.GetService< UserManager< User > >();
 
 			var roles = typeof( Roles )
 				.GetFields()
@@ -100,19 +101,30 @@ namespace WebTradingApp
 				}
 			}
 
-			var adminEmail = "admin@webtrading.com";
-			var user = await userManager.FindByEmailAsync( adminEmail );
+			#region CreateADefaultAdminUser --> Not Working    
 
-			if ( user == null )
-			{
-				await userManager.CreateAsync( new IdentityUser()
-				{
-					UserName = Roles.Admin,
-					Email = adminEmail
-				} );
-			}
+			//			var adminEmail = "admin@webtrading.com";
+			//			var adminPassword = "admin";
+			//
+			//			var adminUser = await userManager.FindByEmailAsync( adminEmail );
+			//
+			//			if ( adminUser == null )
+			//			{
+			//				adminUser = new User()
+			//				{
+			//					UserName = Roles.Admin,
+			//					Email = adminEmail,
+			//
+			//				};
+			//
+			//				await userManager.CreateAsync( adminUser, adminPassword );
+			//
+			//				await userManager.AddToRoleAsync( adminUser, Roles.Admin );
+			//			}
 
-			await userManager.AddToRoleAsync( user, Roles.Admin );
+			#endregion
 		}
+
+		//TODO: Ban users -> https://stackoverflow.com/questions/22652118/disable-user-in-aspnet-identity-2-0
 	}
 }

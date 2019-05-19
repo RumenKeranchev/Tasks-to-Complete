@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebTradingApp", "WebTrading
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recursion", "Recursion\Recursion.csproj", "{0F4919BB-3CF2-4BFA-BE9F-B7B84D28F273}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Battlefield", "Battlefield\Battlefield.csproj", "{EF9BE052-4746-4ED1-9C26-86D29386AA96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{0F4919BB-3CF2-4BFA-BE9F-B7B84D28F273}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F4919BB-3CF2-4BFA-BE9F-B7B84D28F273}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F4919BB-3CF2-4BFA-BE9F-B7B84D28F273}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF9BE052-4746-4ED1-9C26-86D29386AA96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF9BE052-4746-4ED1-9C26-86D29386AA96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF9BE052-4746-4ED1-9C26-86D29386AA96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF9BE052-4746-4ED1-9C26-86D29386AA96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,26 +7,26 @@ namespace Recursion
 	{
 		static void Main( string[] args )
 		{
-			Task05_SearchForElement();
+			Task02_MinElementInArray();
 		}
 
 		//works 100%
 		private static void Task05_SearchForElement()
 		{
 			var a = Console.ReadLine()
-							.Split(new[] { ", ", " " }, StringSplitOptions.RemoveEmptyEntries)
-							.Select(int.Parse)
-							.ToArray();
+				.Split( new[] { ", ", " " }, StringSplitOptions.RemoveEmptyEntries )
+				.Select( int.Parse )
+				.ToArray();
 
 			Array.Sort( a );
 
-			var n = int.Parse(Console.ReadLine());
+			var n = a.Length;
 
-			var e = int.Parse(Console.ReadLine());
+			var e = int.Parse( Console.ReadLine() );
 
-			var result = new SearchForElement().Find(a, n, e);
+			var result = new SearchForElement().Find( a, n, e );
 
-			Console.WriteLine(result);
+			Console.WriteLine( result );
 		}
 
 		//works 100%
@@ -37,7 +37,7 @@ namespace Recursion
 				.Select( int.Parse )
 				.ToArray();
 
-			var n = int.Parse( Console.ReadLine() );
+			var n = a.Length;
 
 			var result = new Palindrome().Check( a, n );
 
@@ -52,7 +52,7 @@ namespace Recursion
 				.Select( int.Parse )
 				.ToArray();
 
-			var n = int.Parse( Console.ReadLine() );
+			var n = a.Length;
 
 			var result = new SumOfArray().Calculate( a, n );
 
@@ -67,7 +67,7 @@ namespace Recursion
 				.Select( int.Parse )
 				.ToArray();
 
-			var n = int.Parse( Console.ReadLine() );
+			var n = a.Length;
 
 			var result = new MinElementInArray().Find( a, n );
 

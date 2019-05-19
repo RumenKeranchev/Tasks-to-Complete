@@ -2,27 +2,23 @@
 {
 	public class MinElementInArray
 	{
-		private int counter;
-
-		private int min;
-
-		private int max;
-
 		public int Find( int[] a, int n )
 		{
-			if ( this.counter < n )
+			if ( n < 1 )
 			{
-				this.min = a[ this.counter ];
-				this.counter++;
-				this.max = a[ this.counter ];
-
-				if (this.min > this.max )
-				{
-					 this.min = this.Find( a, n );
-				}
+				return a[ n ];
 			}
-			//TODO: Not wotking ok e.g: 2 1 3 0 -> returns 1 instead of 0 (returns 1st lowest value)
-			return this.min;
+
+			var b = a[ n - 1 ];
+
+			if ( this.Find( a, n - 1 ) < b )
+			{
+				return this.Find( a, n - 1 );
+			}
+			else
+			{
+				return a[ n - 1 ];
+			}
 		}
 	}
 }
