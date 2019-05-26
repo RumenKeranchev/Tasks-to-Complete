@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Battlefield.Constants;
 using Battlefield.Entities.Army;
@@ -9,13 +6,17 @@ using Battlefield.Interfaces;
 
 namespace Battlefield.Entities
 {
-	public class BaseCamp
+	public class BaseCamp : IDefendable
 	{
+		#region Variables
+
 		private int health;
 
-		private bool takesDamage;
-
 		private readonly List< ArmyUnit > army;
+
+		#endregion
+
+		#region Constructors
 
 		public BaseCamp()
 		{
@@ -23,12 +24,21 @@ namespace Battlefield.Entities
 			this.army = new List< ArmyUnit >();
 		}
 
-		public int Health { get; private set; }
+		#endregion
 
-		/// <summary>
-		/// Returns true if the remaining army count is less then 40%
-		/// </summary>
-		public bool IsDamageable => this.TakesDamage();
+		#region Getters and Setters
+
+		public int Health
+		{
+			get => this.health;
+			private set
+			{
+				if ( value > 0 )
+				{
+					this.health = value;
+				}
+			}
+		}
 
 		public IEnumerable< ArmyUnit > Army
 		{
@@ -40,6 +50,10 @@ namespace Battlefield.Entities
 			}
 		}
 
+		#endregion
+
+		#region Methods
+
 		public void AddToArmy( ArmyUnit unit )
 		{
 			if ( unit != null )
@@ -48,11 +62,37 @@ namespace Battlefield.Entities
 			}
 		}
 
-		private bool TakesDamage()
+		public void RemoveFromArmy( int id )
 		{
-			this.takesDamage = ( double ) this.Army.Count() / 100 < 0.4;
+			if ( id > 0 )
+			{
+				var unit = this.army.FirstOrDefault( u => u.Id == id );
 
-			return this.takesDamage;
+				if ( unit != null && !unit.IsAlive() )
+				{
+					this.army.Remove( unit );
+				}
+			}
 		}
+
+		public int TakeDamage( int damage )
+		{
+			if ( this.CanTakeDamage() )
+			{
+				return this.Health -= damage;
+			}
+
+			return this.Health;
+		}
+
+		/// <summary>
+		/// Returns true if the remaining army count is less then 35%
+		/// </summary>
+		public bool CanTakeDamage()
+		{
+			return ( double ) this.Army.Count() / 100 < 0.35;
+		}
+
+		#endregion
 	}
 }

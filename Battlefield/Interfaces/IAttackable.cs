@@ -1,5 +1,4 @@
-﻿using Battlefield.Entities;
-using Battlefield.Entities.Army;
+﻿using Battlefield.Entities.Army;
 
 namespace Battlefield.Interfaces
 {

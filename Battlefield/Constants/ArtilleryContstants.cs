@@ -13,5 +13,7 @@
 
 		public static int minAttackRange = 350;
 		public static int maxAttackRange = 500;
+
+		public static int Cost = 50;
 	}
 }

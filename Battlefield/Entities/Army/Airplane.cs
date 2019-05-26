@@ -1,6 +1,5 @@
 ﻿using System;
 using Battlefield.Constants;
-using Battlefield.Interfaces;
 
 namespace Battlefield.Entities.Army
 {
@@ -10,8 +9,14 @@ namespace Battlefield.Entities.Army
 			AirplaneConstants.minHealth, AirplaneConstants.maxHealth, 
 			AirplaneConstants.minDefense, AirplaneConstants.maxDefense,
 			AirplaneConstants.minAttackPower, AirplaneConstants.maxAttackPower,
-			AirplaneConstants.minAttackRange, AirplaneConstants.maxAttackRange)
+			AirplaneConstants.minAttackRange, AirplaneConstants.maxAttackRange,
+			AirplaneConstants.Cost)
 		{
+		}
+
+		public override void SpecialAbility()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

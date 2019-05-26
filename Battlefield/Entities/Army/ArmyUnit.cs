@@ -1,38 +1,68 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using Battlefield.Interfaces;
 
 namespace Battlefield.Entities.Army
 {
-	public abstract class ArmyUnit : IAttackable
+	public abstract class ArmyUnit : IAttackable, IUnit
 	{
-		private readonly int defense;
+		#region Variables
 
-		private readonly int attackPower;
+		private int defense;
 
-		private readonly int attackRange;
+		private int attackPower;
+
+		private int attackRange;
+
+		private int health;
+
+		private int cost;
+
+		private static int id = 1;
+
+		private int myId;
 
 		private readonly Random random = new Random();
+
+		#endregion
+
+		#region Constructors
 
 		protected ArmyUnit(
 			int minHealth, int maxHealth,
 			int minDefense, int maxDefense,
 			int minAttackPower, int maxAttackPower,
-			int minAttackRange, int maxAttackRange )
+			int minAttackRange, int maxAttackRange,
+			int cost )
 		{
-			this.Health = this.random.Next( minHealth, maxHealth );
+			this.myId = id++;
+			this.health = this.random.Next( minHealth, maxHealth );
 			this.defense = this.random.Next( minDefense, maxDefense );
 			this.attackPower = this.random.Next( minAttackPower, maxAttackPower );
 			this.attackRange = this.random.Next( minAttackRange, maxAttackRange );
+			this.cost = cost;
 		}
+
+		#endregion
+
+		#region Getters and Setters
 
 		public int Health { get; private set; }
 
-		public int GetDefense => this.defense;
+		public int Defense { get; protected set; }
 
-		public int GetAttackPower => this.attackPower;
+		public int AttackPower { get; protected set; }
 
-		public int GetAttackRange => this.attackRange;
+		public int Range
+		{
+			get { return this.attackRange; }
+			protected set { this.attackRange = value; }
+		}
+
+		public int Id => this.myId;
+
+		#endregion
+
+		#region Methods
 
 		//TODO: Pottential inssue -> unit can attack itself
 		///  <summary>
@@ -48,7 +78,7 @@ namespace Battlefield.Entities.Army
 		/// <returns>Returns the remaining health of the attacked unit</returns>
 		public void Attack( ArmyUnit unit )
 		{
-			double rangeDifferense = ( this.GetAttackRange - unit.GetAttackRange ) / 100;
+			double rangeDifferense = ( this.Range - unit.Range ) / 100;
 
 			if ( rangeDifferense > 1 )
 			{
@@ -57,17 +87,32 @@ namespace Battlefield.Entities.Army
 
 			if ( rangeDifferense > 0 )
 			{
-				var damage = ( int ) Math.Round( this.GetAttackPower - unit.GetDefense -
-				                                 ( double ) ( this.GetAttackPower * rangeDifferense ) );
+				var damage = ( int ) Math.Round( this.AttackPower - unit.Defense -
+				                                 ( double ) ( this.AttackPower * rangeDifferense ) );
 
 				unit.Health -= damage;
 			}
 			else
 			{
-				var damage = ( int ) Math.Round( this.GetAttackPower - unit.GetDefense +
-				                                 ( double ) ( this.GetAttackPower * rangeDifferense ) );
+				var damage = ( int ) Math.Round( this.AttackPower - unit.Defense +
+				                                 ( double ) ( this.AttackPower * rangeDifferense ) );
+
 				unit.Health -= damage;
 			}
 		}
+
+		public bool IsAlive()
+		{
+			if ( this.Health < 0 )
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		public abstract void SpecialAbility();
+
+		#endregion
 	}
 }

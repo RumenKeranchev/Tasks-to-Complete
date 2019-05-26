@@ -1,5 +1,3 @@
-using System;
-
 namespace WebTradingApp.Models
 {
 	public class ErrorViewModel

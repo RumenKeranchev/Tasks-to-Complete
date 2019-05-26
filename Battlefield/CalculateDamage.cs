@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Battlefield.Constants;
-using Battlefield.Entities.Army;
 
 namespace Battlefield
 {

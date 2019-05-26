@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Battlefield.Entities;
 using Battlefield.Entities.Army;
-using Battlefield.Interfaces;
 
 namespace Battlefield
 {
@@ -50,7 +49,7 @@ namespace Battlefield
 
 			Console.Write( $"{camp.Army.Count()} units available.\n" );
 
-			Console.WriteLine( "Is the camp attackable currently: {0}", camp.IsDamageable ? "Yes" : "No" );
+			Console.WriteLine( "Is the camp attackable currently: {0}", camp.CanTakeDamage() ? "Yes" : "No" );
 			Console.WriteLine( new string( '-', 74 ) );
 		}
 
@@ -96,7 +95,7 @@ namespace Battlefield
 				Console.WriteLine( $"This is a {unit.GetType().Name} unit." );
 
 				Console.WriteLine(
-					$"With health: {unit.Health}, defense: {unit.GetDefense} with attack power of: {unit.GetAttackPower} and range of: {unit.GetAttackRange}." );
+					$"With health: {unit.Health}, defense: {unit.Defense} with attack power of: {unit.AttackPower} and range of: {unit.Range}." );
 
 				Console.WriteLine( new string( '-', 74 ) );
 				Console.WriteLine();

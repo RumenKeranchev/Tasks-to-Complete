@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace WebBlog.Models.Blogs
+﻿namespace WebBlog.Models.Blogs
 {
 	public class CreateViewModel
 	{

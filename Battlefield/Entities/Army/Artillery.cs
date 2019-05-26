@@ -1,6 +1,5 @@
 ﻿using System;
 using Battlefield.Constants;
-using Battlefield.Interfaces;
 
 namespace Battlefield.Entities.Army
 {
@@ -10,8 +9,14 @@ namespace Battlefield.Entities.Army
 			ArtilleryContstants.minHealth, ArtilleryContstants.maxHealth,
 			ArtilleryContstants.minDefense, ArtilleryContstants.maxDefense,
 			ArtilleryContstants.minAttackPower, ArtilleryContstants.maxAttackPower,
-			ArtilleryContstants.minAttackRange, ArtilleryContstants.maxAttackRange )
+			ArtilleryContstants.minAttackRange, ArtilleryContstants.maxAttackRange,
+			ArtilleryContstants.Cost)
 		{
+		}
+
+		public override void SpecialAbility()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

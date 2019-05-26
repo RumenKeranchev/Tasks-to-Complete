@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using Battlefield.Entities.Army;
-
-namespace Battlefield.Interfaces
+﻿namespace Battlefield.Interfaces
 {
 	public interface IDefendable
 	{
-		bool TakesDamage();
+		bool CanTakeDamage();
 	}
 }
