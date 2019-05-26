@@ -1,6 +1,6 @@
 ﻿namespace Battlefield.Constants
 {
-	public static class AirplaneConstants
+	public static class InfantryConstants
 	{
 		public static int minHealth = 350;
 		public static int maxHealth = 500;

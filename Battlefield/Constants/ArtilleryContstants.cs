@@ -1,6 +1,6 @@
 ﻿namespace Battlefield.Constants
 {
-	public static class ArtileryContstants
+	public static class ArtilleryContstants
 	{
 		public static int minHealth = 150;
 		public static int maxHealth = 250;

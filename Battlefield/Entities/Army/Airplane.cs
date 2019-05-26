@@ -9,7 +9,7 @@ namespace Battlefield.Entities.Army
 		public Airplane() : base(
 			AirplaneConstants.minHealth, AirplaneConstants.maxHealth, 
 			AirplaneConstants.minDefense, AirplaneConstants.maxDefense,
-			AirplaneConstants.mintAtackPower, AirplaneConstants.maxAttackPower,
+			AirplaneConstants.minAttackPower, AirplaneConstants.maxAttackPower,
 			AirplaneConstants.minAttackRange, AirplaneConstants.maxAttackRange)
 		{
 		}
