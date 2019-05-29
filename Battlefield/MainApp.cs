@@ -10,20 +10,20 @@ namespace Battlefield
 	{
 		static void Main( string[] args )
 		{
-			List< ArmyUnit > units = InitialArmy();
-			AttacksBetweenTheUnits( units );
-			InitializeBaseCamp();
-			Calculator();
+			var battle = Battle.GetInstance();
+			battle.StartBattle();
 		}
 
 		/// <summary>
-		/// Initializes the Calculator class and uses both available method
+		/// Initializes the Calculator class and uses all available methods
 		/// </summary>
 		private static void Calculator()
 		{
 			var a = new CalculateDamage();
-			a.CalculateFromConstants();
-			a.CalculateWithUserInput();
+			a.CalculateAll();
+			Console.WriteLine( "\r\nStatistics for all units have been calculated!\r\n" );
+//			a.CalculateFromConstants();
+//			a.CalculateWithUserInput();
 		}
 
 		/// <summary>
@@ -39,12 +39,12 @@ namespace Battlefield
 
 			for ( int i = 0 ; i < 25 ; i++ )
 			{
-				camp.AddToArmy( new Airplane() );
+				camp.PurchaseUnit( new Airplane() );
 			}
 
 			for ( int i = 0 ; i < 25 ; i++ )
 			{
-				camp.AddToArmy( new Artillery() );
+				camp.PurchaseUnit( new Artillery() );
 			}
 
 			Console.Write( $"{camp.Army.Count()} units available.\n" );

@@ -12,6 +12,8 @@ namespace Battlefield.Entities
 
 		private int health;
 
+		private int resources;
+
 		private readonly List< ArmyUnit > army;
 
 		#endregion
@@ -22,6 +24,7 @@ namespace Battlefield.Entities
 		{
 			this.Health = BaseCampConstants.Health;
 			this.army = new List< ArmyUnit >();
+			this.Resources = BaseCampConstants.Resources;
 		}
 
 		#endregion
@@ -50,15 +53,18 @@ namespace Battlefield.Entities
 			}
 		}
 
+		public int Resources { get; private set; }
+
 		#endregion
 
 		#region Methods
 
-		public void AddToArmy( ArmyUnit unit )
+		public void PurchaseUnit( ArmyUnit unit )
 		{
-			if ( unit != null )
+			if ( unit != null && this.resources <= unit.Cost)
 			{
 				this.army.Add( unit );
+				this.Resources -= unit.Cost;
 			}
 		}
 

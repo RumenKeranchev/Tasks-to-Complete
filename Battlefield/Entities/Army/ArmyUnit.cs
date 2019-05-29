@@ -60,6 +60,8 @@ namespace Battlefield.Entities.Army
 
 		public int Id => this.myId;
 
+		public int Cost => this.cost;
+
 		#endregion
 
 		#region Methods

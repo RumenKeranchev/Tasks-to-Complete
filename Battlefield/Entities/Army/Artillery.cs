@@ -6,11 +6,11 @@ namespace Battlefield.Entities.Army
 	public class Artillery : ArmyUnit
 	{
 		public Artillery() : base(
-			ArtilleryContstants.minHealth, ArtilleryContstants.maxHealth,
-			ArtilleryContstants.minDefense, ArtilleryContstants.maxDefense,
-			ArtilleryContstants.minAttackPower, ArtilleryContstants.maxAttackPower,
-			ArtilleryContstants.minAttackRange, ArtilleryContstants.maxAttackRange,
-			ArtilleryContstants.Cost)
+			ArtilleryConstants.minHealth, ArtilleryConstants.maxHealth,
+			ArtilleryConstants.minDefense, ArtilleryConstants.maxDefense,
+			ArtilleryConstants.minAttackPower, ArtilleryConstants.maxAttackPower,
+			ArtilleryConstants.minAttackRange, ArtilleryConstants.maxAttackRange,
+			ArtilleryConstants.Cost)
 		{
 		}
 

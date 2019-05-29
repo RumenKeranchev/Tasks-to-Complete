@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Battlefield.Constants;
 
@@ -62,7 +64,57 @@ namespace Battlefield
 		#endregion
 
 		/// <summary>
-		/// Calculate the possible damage between two units with user given stats
+		/// Calculates all unit statisctis for all available units without any inputs.
+		/// </summary>
+		public void CalculateAll()
+		{
+			var initiaList = Directory.GetFiles( @"..\..\..\Constants" )
+				.Select( Path.GetFileNameWithoutExtension )
+				.ToList();
+
+			initiaList.Remove( nameof( BaseCampConstants ) );
+
+			var constants = initiaList
+				.Select( c => c.Substring( 0, c.IndexOf( "Constants", StringComparison.Ordinal ) ) )
+				.ToList();
+
+			foreach ( var constant in constants )
+			{
+				this.unit = constant;
+
+				this.UnitToCompare();
+
+				List< string > secondList = new List< string >( constants );
+
+				secondList.Remove( constant );
+
+				for ( int i = 0 ; i < secondList.Count ; i++ )
+				{
+					this.attackedUnit = secondList[ i ];
+					
+					this.UnitToComareWith();
+
+					this.sb.AppendLine( this.dashes );
+
+					this.AddUnitsStatsToStringBuilder();
+
+					this.CalculateRangeDifferense();
+
+					this.winPercent = this.CalculatePossibleDamage();
+
+					this.CalculateWinRation();
+
+					this.SaveToFile();
+
+					this.winPercent = 0;
+
+					this.sb.Clear();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Calculates all unit statisctis between two units with user given stats
 		/// </summary>
 		public void CalculateWithUserInput()
 		{
@@ -134,14 +186,14 @@ namespace Battlefield
 			switch ( this.attackedUnit )
 			{
 				case "Artillery" :
-					this.attackedMinAttack = ArtilleryContstants.minAttackPower;
-					this.attackedMaxAttack = ArtilleryContstants.maxAttackPower;
-					this.attackedMinDefense = ArtilleryContstants.minDefense;
-					this.attackedMaxDefense = ArtilleryContstants.maxDefense;
-					this.attackedMinRange = ArtilleryContstants.minAttackRange;
-					this.attackedMaxRange = ArtilleryContstants.maxAttackRange;
-					this.attackedMinHealth = ArtilleryContstants.minHealth;
-					this.attackedMaxHealth = ArtilleryContstants.maxHealth;
+					this.attackedMinAttack = ArtilleryConstants.minAttackPower;
+					this.attackedMaxAttack = ArtilleryConstants.maxAttackPower;
+					this.attackedMinDefense = ArtilleryConstants.minDefense;
+					this.attackedMaxDefense = ArtilleryConstants.maxDefense;
+					this.attackedMinRange = ArtilleryConstants.minAttackRange;
+					this.attackedMaxRange = ArtilleryConstants.maxAttackRange;
+					this.attackedMinHealth = ArtilleryConstants.minHealth;
+					this.attackedMaxHealth = ArtilleryConstants.maxHealth;
 
 					break;
 
@@ -188,14 +240,14 @@ namespace Battlefield
 			switch ( this.unit )
 			{
 				case "Artillery" :
-					this.minAttack = ArtilleryContstants.minAttackPower;
-					this.maxAttack = ArtilleryContstants.maxAttackPower;
-					this.minDefense = ArtilleryContstants.minDefense;
-					this.maxDefense = ArtilleryContstants.maxDefense;
-					this.minRange = ArtilleryContstants.minAttackRange;
-					this.maxRange = ArtilleryContstants.maxAttackRange;
-					this.minHealth = ArtilleryContstants.minHealth;
-					this.maxHealth = ArtilleryContstants.maxHealth;
+					this.minAttack = ArtilleryConstants.minAttackPower;
+					this.maxAttack = ArtilleryConstants.maxAttackPower;
+					this.minDefense = ArtilleryConstants.minDefense;
+					this.maxDefense = ArtilleryConstants.maxDefense;
+					this.minRange = ArtilleryConstants.minAttackRange;
+					this.maxRange = ArtilleryConstants.maxAttackRange;
+					this.minHealth = ArtilleryConstants.minHealth;
+					this.maxHealth = ArtilleryConstants.maxHealth;
 
 					break;
 
@@ -206,8 +258,8 @@ namespace Battlefield
 					this.maxDefense = AirplaneConstants.maxDefense;
 					this.minRange = AirplaneConstants.minAttackRange;
 					this.maxRange = AirplaneConstants.maxAttackRange;
-					this.minHealth = ArtilleryContstants.minHealth;
-					this.maxHealth = ArtilleryContstants.maxHealth;
+					this.minHealth = AirplaneConstants.minHealth;
+					this.maxHealth = AirplaneConstants.maxHealth;
 
 					break;
 
@@ -218,8 +270,8 @@ namespace Battlefield
 					this.maxDefense = InfantryConstants.maxDefense;
 					this.minRange = InfantryConstants.minAttackRange;
 					this.maxRange = InfantryConstants.maxAttackRange;
-					this.minHealth = ArtilleryContstants.minHealth;
-					this.maxHealth = ArtilleryContstants.maxHealth;
+					this.minHealth = InfantryConstants.minHealth;
+					this.maxHealth = InfantryConstants.maxHealth;
 
 					break;
 
@@ -230,8 +282,8 @@ namespace Battlefield
 					this.maxDefense = TankConstants.maxDefense;
 					this.minRange = TankConstants.minAttackRange;
 					this.maxRange = TankConstants.maxAttackRange;
-					this.minHealth = ArtilleryContstants.minHealth;
-					this.maxHealth = ArtilleryContstants.maxHealth;
+					this.minHealth = TankConstants.minHealth;
+					this.maxHealth = TankConstants.maxHealth;
 
 					break;
 			}
@@ -250,7 +302,12 @@ namespace Battlefield
 
 		private void SaveToFile()
 		{
-			File.WriteAllText( "..\\..\\..\\" + "\\statistics.txt", this.sb.ToString() );
+			if ( !Directory.Exists( "..\\..\\..\\Statistics" ) )
+			{
+				Directory.CreateDirectory( "..\\..\\..\\Statistics" );
+			}
+
+			File.WriteAllText( "..\\..\\..\\Statistics" + $"\\{this.unit}-{this.attackedUnit}.txt", this.sb.ToString() );
 		}
 
 		private void ReadUnitsNames()
@@ -328,7 +385,7 @@ namespace Battlefield
 		private int CalculatePossibleDamage()
 		{
 			var mamdmrmor = Convert.ToInt32( this.mrmor > 0
-				? Math.Round( this.minAttack - this.attackedMinDefense - ( this.minAttack * this.mrmor ) )
+				? Math.Round( this.minAttack - this.attackedMinDefense - ( this.minAttack * 0.5 ) )
 				: Math.Round( this.minAttack - this.attackedMinDefense + ( this.minAttack * this.mrmor ) ) );
 
 			this.winPercent += mamdmrmor > 0 ? 1 : 0;
@@ -339,7 +396,7 @@ namespace Battlefield
 				$"\t\tAttacking with min attack power and min range, {this.attackedUnit} having  min range and min defense deals   {mamdmrmor} damage." );
 
 			var MAmdmrmor = Convert.ToInt32( this.mrmor > 0
-				? Math.Round( this.maxAttack - this.attackedMinDefense - ( this.maxAttack * this.mrmor ) )
+				? Math.Round( this.maxAttack - this.attackedMinDefense - ( this.maxAttack * 0.5 ) )
 				: Math.Round( this.maxAttack - this.attackedMinDefense + ( this.maxAttack * this.mrmor ) ) );
 
 			this.winPercent += MAmdmrmor > 0 ? 1 : 0;
@@ -348,7 +405,7 @@ namespace Battlefield
 				$"\t\tAttacking with MAX attack power and min range, {this.attackedUnit} having  min range and min defense deals   {MAmdmrmor} damage." );
 
 			var maMDmrmor = Convert.ToInt32( this.mrmor > 0
-				? Math.Round( this.minAttack - this.attackedMaxDefense - ( this.minAttack * this.mrmor ) )
+				? Math.Round( this.minAttack - this.attackedMaxDefense - ( this.minAttack * 0.5 ) )
 				: Math.Round( this.minAttack - this.attackedMaxDefense + ( this.minAttack * this.mrmor ) ) );
 
 			this.winPercent += maMDmrmor > 0 ? 1 : 0;
@@ -357,7 +414,7 @@ namespace Battlefield
 				$"\t\tAttacking with min attack power and min range, {this.attackedUnit} having  min range and MAX defense deals   {maMDmrmor} damage." );
 
 			var mamdMRmor = Convert.ToInt32( this.MRmor > 0
-				? Math.Round( this.minAttack - this.attackedMinDefense - ( this.minAttack * this.MRmor ) )
+				? Math.Round( this.minAttack - this.attackedMinDefense - ( this.minAttack * 0.5 ) )
 				: Math.Round( this.minAttack - this.attackedMinDefense + ( this.minAttack * this.MRmor ) ) );
 
 			this.winPercent += mamdMRmor > 0 ? 1 : 0;
@@ -366,7 +423,7 @@ namespace Battlefield
 				$"\t\tAttacking with min attack power and MAX range, {this.attackedUnit} having  min range and MAX defense deals   {mamdMRmor} damage." );
 
 			var mamdmrMOR = Convert.ToInt32( this.mrMOR > 0
-				? Math.Round( this.minAttack - this.attackedMinDefense - ( this.minAttack * this.mrMOR ) )
+				? Math.Round( this.minAttack - this.attackedMinDefense - ( this.minAttack * 0.5 ) )
 				: Math.Round( this.minAttack - this.attackedMinDefense + ( this.minAttack * this.mrMOR ) ) );
 
 			this.winPercent += mamdmrMOR > 0 ? 1 : 0;
@@ -375,7 +432,7 @@ namespace Battlefield
 				$"\t\tAttacking with min attack power and min range, {this.attackedUnit} having  MAX range and min defense deals   {mamdmrMOR} damage." );
 
 			var MAMDmrmor = Convert.ToInt32( this.mrmor > 0
-				? Math.Round( this.maxAttack - this.attackedMaxDefense - ( this.maxAttack * this.mrmor ) )
+				? Math.Round( this.maxAttack - this.attackedMaxDefense - ( this.maxAttack * 0.5 ) )
 				: Math.Round( this.maxAttack - this.attackedMaxDefense + ( this.maxAttack * this.mrmor ) ) );
 
 			this.winPercent += MAMDmrmor > 0 ? 1 : 0;
@@ -384,7 +441,7 @@ namespace Battlefield
 				$"\t\tAttacking with MAX attack power and min range, {this.attackedUnit} having  min range and MAX defense deals   {MAMDmrmor} damage." );
 
 			var MAmdMRmor = Convert.ToInt32( this.MRmor > 0
-				? Math.Round( this.maxAttack - this.attackedMinDefense - ( this.maxAttack * this.MRmor ) )
+				? Math.Round( this.maxAttack - this.attackedMinDefense - ( this.maxAttack * 0.5 ) )
 				: Math.Round( this.maxAttack - this.attackedMinDefense + ( this.maxAttack * this.MRmor ) ) );
 
 			this.winPercent += MAmdMRmor > 0 ? 1 : 0;
@@ -393,7 +450,7 @@ namespace Battlefield
 				$"\t\tAttacking with MAX attack power and MAX range, {this.attackedUnit} having  min range and min defense deals   {MAmdMRmor} damage." );
 
 			var MAmdmrMOR = Convert.ToInt32( this.mrMOR > 0
-				? Math.Round( this.maxAttack - this.attackedMinDefense - ( this.maxAttack * this.mrMOR ) )
+				? Math.Round( this.maxAttack - this.attackedMinDefense - ( this.maxAttack * 0.5 ) )
 				: Math.Round( this.maxAttack - this.attackedMinDefense + ( this.maxAttack * this.mrMOR ) ) );
 
 			this.winPercent += MAmdmrMOR > 0 ? 1 : 0;
@@ -402,7 +459,7 @@ namespace Battlefield
 				$"\t\tAttacking with MAX attack power and min range, {this.attackedUnit} having  MAX range and min defense deals   {MAmdmrMOR} damage." );
 
 			var maMDMRmor = Convert.ToInt32( this.MRmor > 0
-				? Math.Round( this.minAttack - this.attackedMaxDefense - ( this.minAttack * this.MRmor ) )
+				? Math.Round( this.minAttack - this.attackedMaxDefense - ( this.minAttack * 0.5 ) )
 				: Math.Round( this.minAttack - this.attackedMaxDefense + ( this.minAttack * this.MRmor ) ) );
 
 			this.winPercent += maMDMRmor > 0 ? 1 : 0;
@@ -411,7 +468,7 @@ namespace Battlefield
 				$"\t\tAttacking with min attack power and MAX range, {this.attackedUnit} having  min range and MAX defense deals   {maMDMRmor} damage." );
 
 			var maMDmrMOR = Convert.ToInt32( this.mrMOR > 0
-				? Math.Round( this.minAttack - this.attackedMaxDefense - ( this.minAttack * this.mrMOR ) )
+				? Math.Round( this.minAttack - this.attackedMaxDefense - ( this.minAttack * 0.5 ) )
 				: Math.Round( this.minAttack - this.attackedMaxDefense + ( this.minAttack * this.mrMOR ) ) );
 
 			this.winPercent += maMDmrMOR > 0 ? 1 : 0;
@@ -420,7 +477,7 @@ namespace Battlefield
 				$"\t\tAttacking with min attack power and min range, {this.attackedUnit} having  MAX range and MAX defense deals   {maMDmrMOR} damage." );
 
 			var mamdMRMOR = Convert.ToInt32( this.MRMOR > 0
-				? Math.Round( this.minAttack - this.attackedMinDefense - ( this.minAttack * this.MRMOR ) )
+				? Math.Round( this.minAttack - this.attackedMinDefense - ( this.minAttack * 0.5 ) )
 				: Math.Round( this.minAttack - this.attackedMinDefense + ( this.minAttack * this.MRMOR ) ) );
 
 			this.winPercent += mamdMRMOR > 0 ? 1 : 0;
@@ -429,7 +486,7 @@ namespace Battlefield
 				$"\t\tAttacking with min attack power and MAX range, {this.attackedUnit} having  MAX range and min defense deals   {mamdMRMOR} damage." );
 
 			var MAMDMRmor = Convert.ToInt32( this.MRmor > 0
-				? Math.Round( this.maxAttack - this.attackedMaxDefense - ( this.maxAttack * this.MRmor ) )
+				? Math.Round( this.maxAttack - this.attackedMaxDefense - ( this.maxAttack * 0.5 ) )
 				: Math.Round( this.maxAttack - this.attackedMaxDefense + ( this.maxAttack * this.MRmor ) ) );
 
 			this.winPercent += MAMDMRmor > 0 ? 1 : 0;
@@ -438,7 +495,7 @@ namespace Battlefield
 				$"\t\tAttacking with MAX attack power and MAX range, {this.attackedUnit} having  min range and MAX defense deals   {MAMDMRmor} damage." );
 
 			var MAMDmrMOR = Convert.ToInt32( this.mrMOR > 0
-				? Math.Round( this.maxAttack - this.attackedMaxDefense - ( this.maxAttack * this.mrMOR ) )
+				? Math.Round( this.maxAttack - this.attackedMaxDefense - ( this.maxAttack * 0.5 ) )
 				: Math.Round( this.maxAttack - this.attackedMaxDefense + ( this.maxAttack * this.mrMOR ) ) );
 
 			this.winPercent += MAMDmrMOR > 0 ? 1 : 0;
@@ -447,7 +504,7 @@ namespace Battlefield
 				$"\t\tAttacking with MAX attack power and min range, {this.attackedUnit} having  MAX range and MAX defense deals   {MAMDmrMOR} damage." );
 
 			var MAmdMRMOR = Convert.ToInt32( this.MRMOR > 0
-				? Math.Round( this.maxAttack - this.attackedMinDefense - ( this.maxAttack * this.MRMOR ) )
+				? Math.Round( this.maxAttack - this.attackedMinDefense - ( this.maxAttack * 0.5 ) )
 				: Math.Round( this.maxAttack - this.attackedMinDefense + ( this.maxAttack * this.MRMOR ) ) );
 
 			this.winPercent += MAmdMRMOR > 0 ? 1 : 0;
@@ -456,7 +513,7 @@ namespace Battlefield
 				$"\t\tAttacking with MAX attack power and MAX range, {this.attackedUnit} having  MAX range and min defense deals   {MAmdMRMOR} damage." );
 
 			var maMDMRMOR = Convert.ToInt32( this.MRMOR > 0
-				? Math.Round( this.minAttack - this.attackedMaxDefense - ( this.minAttack * this.MRMOR ) )
+				? Math.Round( this.minAttack - this.attackedMaxDefense - ( this.minAttack * 0.5 ) )
 				: Math.Round( this.minAttack - this.attackedMaxDefense + ( this.minAttack * this.MRMOR ) ) );
 
 			this.winPercent += maMDMRMOR > 0 ? 1 : 0;
@@ -465,7 +522,7 @@ namespace Battlefield
 				$"\t\tAttacking with min attack power and MAX range, {this.attackedUnit} having  MAX range and MAX defense deals   {maMDMRMOR} damage." );
 
 			var MAMDMRMOR = Convert.ToInt32( this.MRMOR > 0
-				? Math.Round( this.maxAttack - this.attackedMaxDefense - ( this.maxAttack * this.MRMOR ) )
+				? Math.Round( this.maxAttack - this.attackedMaxDefense - ( this.maxAttack * 0.5 ) )
 				: Math.Round( this.maxAttack - this.attackedMaxDefense + ( this.maxAttack * this.MRMOR ) ) );
 
 			this.winPercent += MAMDMRMOR > 0 ? 1 : 0;
