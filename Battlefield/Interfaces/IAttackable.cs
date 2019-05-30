@@ -14,7 +14,7 @@ namespace Battlefield.Interfaces
 		///  <para>unit's attack  - target's defense -/+ (unit's attack * +/- (double)(unit's range - target's range) / 100)  = Math.Round(17.94)</para>
 		///  </summary>
 		/// <param name="unit"></param>
-		/// <returns>Returns the remaining health of the attacked unit</returns>
-		void Attack( ArmyUnit unit );
+		/// <returns>Returns the damage dealt to the attacked unit</returns>
+		int Attack( ArmyUnit unit );
 	}
 }

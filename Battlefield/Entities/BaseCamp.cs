@@ -61,23 +61,19 @@ namespace Battlefield.Entities
 
 		public void PurchaseUnit( ArmyUnit unit )
 		{
-			if ( unit != null && this.resources <= unit.Cost)
+			if ( unit != null && this.resources <= unit.Cost )
 			{
 				this.army.Add( unit );
 				this.Resources -= unit.Cost;
 			}
 		}
 
-		public void RemoveFromArmy( int id )
+		//TODO: BUG -> It doesnt actually remove from army
+		public void RemoveFromArmy( ArmyUnit unit )
 		{
-			if ( id > 0 )
+			if ( unit != null && !unit.IsAlive() )
 			{
-				var unit = this.army.FirstOrDefault( u => u.Id == id );
-
-				if ( unit != null && !unit.IsAlive() )
-				{
-					this.army.Remove( unit );
-				}
+				this.army.Remove( unit );
 			}
 		}
 

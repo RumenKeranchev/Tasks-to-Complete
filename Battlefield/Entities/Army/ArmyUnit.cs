@@ -46,11 +46,23 @@ namespace Battlefield.Entities.Army
 
 		#region Getters and Setters
 
-		public int Health { get; private set; }
+		public int Health
+		{
+			get { return this.health; }
+			private set { this.health = value; }
+		}
 
-		public int Defense { get; protected set; }
+		public int Defense
+		{
+			get { return this.defense; }
+			protected set { this.defense = value; }
+		}
 
-		public int AttackPower { get; protected set; }
+		public int AttackPower
+		{
+			get { return this.attackPower; }
+			protected set { this.AttackPower = value; }
+		}
 
 		public int Range
 		{
@@ -78,9 +90,10 @@ namespace Battlefield.Entities.Army
 		///  </summary>
 		/// <param name="unit"></param>
 		/// <returns>Returns the remaining health of the attacked unit</returns>
-		public void Attack( ArmyUnit unit )
+		public int Attack( ArmyUnit unit )
 		{
 			double rangeDifferense = ( this.Range - unit.Range ) / 100;
+			int damage;
 
 			if ( rangeDifferense > 1 )
 			{
@@ -89,18 +102,30 @@ namespace Battlefield.Entities.Army
 
 			if ( rangeDifferense > 0 )
 			{
-				var damage = ( int ) Math.Round( this.AttackPower - unit.Defense -
-				                                 ( double ) ( this.AttackPower * rangeDifferense ) );
+				damage = ( int ) Math.Round( this.AttackPower - unit.Defense -
+				                             ( double ) ( this.AttackPower * rangeDifferense ) );
+
+				if ( damage < 0 )
+				{
+					damage = 0;
+				}
 
 				unit.Health -= damage;
 			}
 			else
 			{
-				var damage = ( int ) Math.Round( this.AttackPower - unit.Defense +
-				                                 ( double ) ( this.AttackPower * rangeDifferense ) );
+				damage = ( int ) Math.Round( this.AttackPower - unit.Defense +
+				                             ( double ) ( this.AttackPower * rangeDifferense ) );
+
+				if ( damage < 0 )
+				{
+					damage = 0;
+				}
 
 				unit.Health -= damage;
 			}
+
+			return damage;
 		}
 
 		public bool IsAlive()

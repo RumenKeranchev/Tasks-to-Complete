@@ -20,7 +20,7 @@ namespace Battlefield
 		private static void Calculator()
 		{
 			var a = new CalculateDamage();
-			a.CalculateAll();
+//			a.CalculateAll();
 			Console.WriteLine( "\r\nStatistics for all units have been calculated!\r\n" );
 //			a.CalculateFromConstants();
 //			a.CalculateWithUserInput();
