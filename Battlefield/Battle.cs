@@ -2,6 +2,7 @@
 using Battlefield.Entities;
 using Battlefield.Entities.Army;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace Battlefield
@@ -14,13 +15,15 @@ namespace Battlefield
 
 		private string dashes = new string( '-', 74 );
 
-		private int playerChoice;
+		private int modeChoice;
 
 		private BaseCamp player1;
 
 		private BaseCamp player2;
 
-		private bool gameOver = false;
+		private bool gameOver;
+
+		private int lastAttackingUnit;
 
 		#endregion
 
@@ -57,27 +60,40 @@ namespace Battlefield
 
 		private void PlayerChoice()
 		{
-			Console.Write( "Enter your choice here: " );
-			var input = int.Parse( Console.ReadKey().KeyChar.ToString() );
-			Console.WriteLine();
-
-			if ( input != 1 && input != 2 )
+			try
 			{
-				Console.WriteLine( "Invalid choice! Please select one of the options." );
+				Console.Write( "Enter your choice here: " );
+				var input = int.Parse( Console.ReadKey().KeyChar.ToString() );
+				Console.WriteLine();
+
+				if ( input != 1 && input != 2 )
+				{
+					Console.WriteLine( "Invalid choice! Please select one of the options." );
+					this.PlayerChoice();
+				}
+
+				this.modeChoice = input;
+			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "PlayerChoice" );
+
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong when selecting game mode (error 110)!" );
+				Console.WriteLine();
+
 				this.PlayerChoice();
 			}
-
-			this.playerChoice = input;
 		}
 
 		private void GameMode()
 		{
-			if ( this.playerChoice == 1 )
+			if ( this.modeChoice == 1 )
 			{
 				this.PVP();
 			}
 
-			if ( this.playerChoice == 2 )
+			if ( this.modeChoice == 2 )
 			{
 				this.PVE();
 			}
@@ -88,17 +104,62 @@ namespace Battlefield
 		{
 			Console.WriteLine( $"The Player can access the shop now! You currently have {this.player1.Resources} bfc." );
 			this.Shop( this.player1 );
+			Console.WriteLine( "Let the battle begin!" );
 			this.GeneratePVEArmy();
 
 			while ( !this.gameOver )
 			{
 				this.Attack( this.player1, this.player2 );
+				this.ShopAgain( this.player1 );
 			}
 		}
 
 		//TODO: Add PVP methods:
 		private void PVP()
 		{
+		}
+
+		private void ShopAgain( BaseCamp p1 )
+		{
+			try
+			{
+				Console.WriteLine();
+				Console.WriteLine( "Would you like to add more units to your army: (1)Yes, (2)No" );
+				var input = int.Parse( Console.ReadKey().KeyChar.ToString() );
+				Console.WriteLine();
+
+				if ( input == 1 )
+				{
+					this.Shop( p1 );
+					Console.WriteLine( "The battle continues!" );
+				}
+				else
+				{
+					Console.WriteLine( "The battle continues!" );
+				}
+			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "ShopAgain" );
+
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong while confirming accessing the shop (error 109)!" );
+				Console.WriteLine();
+
+				this.ShopAgain( p1 );
+			}
+		}
+
+		private void IsGameOver()
+		{
+			if ( this.player1.Health <= 0 || !this.player1.Army.Any() )
+			{
+				this.gameOver = true;
+			}
+			else if ( this.player2.Health <= 0 || !this.player2.Army.Any() )
+			{
+				this.gameOver = true;
+			}
 		}
 
 		private void Attack( BaseCamp p1, BaseCamp p2, string attacker = "AI" )
@@ -108,55 +169,66 @@ namespace Battlefield
 			this.Fire( p1, p2, ready, aim );
 		}
 
-		private void IsGameOver()
-		{
-			if ( this.player1.Health <= 0 )
-			{
-				this.gameOver = true;
-			}
-			else if ( this.player2.Health <= 0 )
-			{
-				this.gameOver = true;
-			}
-		}
-
 		/// <summary>
 		/// Attack the selected enemy unit.
 		/// </summary>
 		/// <param name="p1"></param>
+		/// <param name="p2"></param>
 		/// <param name="unit"></param>
 		/// <param name="attackedUnit"></param>
 		private void Fire( BaseCamp p1, BaseCamp p2, ArmyUnit unit, ArmyUnit attackedUnit )
 		{
-			var attackedUnitHealth = attackedUnit.Health;
-			var damageDealt = unit.Attack( attackedUnit );
-			int remainingDamage = 0;
-
-			if ( attackedUnitHealth - damageDealt < 0 )
+			try
 			{
-				remainingDamage = Math.Abs( attackedUnitHealth - damageDealt );
+				var attackedUnitHealth = attackedUnit.Health;
+				var damageDealt = unit.Attack( attackedUnit );
+				int remainingDamage = 0;
+
+				if ( attackedUnitHealth - damageDealt < 0 )
+				{
+					remainingDamage = Math.Abs( attackedUnitHealth - damageDealt );
+				}
+
+				Console.Write(
+					$"{unit.GetType().Name}#{unit.Id} did {damageDealt} damage to {attackedUnit.GetType().Name}#{attackedUnit.Id}" );
+
+				if ( !attackedUnit.IsDead() )
+				{
+					Console.WriteLine( $" which has {attackedUnit.Health} health left after the attack." );
+				}
+				else
+				{
+					this.GainResource( p1, attackedUnit );
+					p2.RemoveFromArmy( attackedUnit );
+					Console.WriteLine( " and killed it." );
+				}
+
+				if ( p2.CanTakeDamage() )
+				{
+					Console.WriteLine( $"The enemy's army numbers are dwindeling! His Base took {remainingDamage} damage!" );
+					p2.TakeDamage( remainingDamage );
+				}
+
+				this.lastAttackingUnit = unit.Id;
+				this.IsGameOver();
 			}
-
-			Console.Write(
-				$"{unit.GetType().Name}#{unit.Id} did {damageDealt} damage to {attackedUnit.GetType().Name}#{attackedUnit.Id}" );
-
-			if ( attackedUnit.IsAlive() )
+			catch ( Exception e )
 			{
-				Console.WriteLine( $" which has {attackedUnit.Health} health left after the attack." );
-			}
-			else
-			{
-				p1.RemoveFromArmy( attackedUnit );
-				Console.WriteLine( " and killed it." );
-			}
+				ErrorLogging( e, "Fire" );
+				Console.WriteLine();
+				Console.WriteLine( "Something went from when attacking the enemy (error 108)!" );
+				Console.WriteLine();
 
-			if ( p2.CanTakeDamage() )
-			{
-				Console.WriteLine( $"The enemy's army numbers are dwindeling! His Base took {remainingDamage} damage!" );
-				p2.TakeDamage( remainingDamage );
+				this.Fire( p1, p2, unit, attackedUnit );
 			}
+		}
 
-			this.IsGameOver();
+		private void GainResource( BaseCamp p1, ArmyUnit armyUnit )
+		{
+			if ( armyUnit != null && p1 != null )
+			{
+				p1.Resources += ( int ) ( armyUnit.Cost * 0.65 );
+			}
 		}
 
 		/// <summary>
@@ -179,40 +251,53 @@ namespace Battlefield
 			Console.WriteLine(
 				$"Show more details about which unit devision: (1){nameof( Airplane )} (2){nameof( Artillery )} (3){nameof( Infantry )} (4){nameof( Tank )}" );
 
-			var choice = int.Parse( Console.ReadKey().KeyChar.ToString() );
-			Console.WriteLine();
-
-			switch ( choice )
+			try
 			{
-				case 1 :
+				var choice = int.Parse( Console.ReadKey().KeyChar.ToString() );
+				Console.WriteLine();
 
-					selectedUnit = this.GetAttackedUnit( p2, typeof( Airplane ) );
+				switch ( choice )
+				{
+					case 1 :
 
-					break;
+						selectedUnit = this.GetAttackedUnit( p2, typeof( Airplane ) );
 
-				case 2 :
+						break;
 
-					selectedUnit = this.GetAttackedUnit( p2, typeof( Artillery ) );
+					case 2 :
 
-					break;
+						selectedUnit = this.GetAttackedUnit( p2, typeof( Artillery ) );
 
-				case 3 :
+						break;
 
-					selectedUnit = this.GetAttackedUnit( p2, typeof( Infantry ) );
+					case 3 :
 
-					break;
+						selectedUnit = this.GetAttackedUnit( p2, typeof( Infantry ) );
 
-				case 4 :
+						break;
 
-					selectedUnit = this.GetAttackedUnit( p2, typeof( Tank ) );
+					case 4 :
 
-					break;
+						selectedUnit = this.GetAttackedUnit( p2, typeof( Tank ) );
 
-				default :
-					Console.WriteLine( "Please select one of the provided options!" );
-					this.Aim( p2, attacker );
+						break;
 
-					break;
+					default :
+						Console.WriteLine( "Please select one of the provided options!" );
+						this.Aim( p2, attacker );
+
+						break;
+				}
+			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "Aim" );
+
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong when aiming the unit (error 107)!" );
+				Console.WriteLine();
+
+				this.Aim( p2, attacker );
 			}
 
 			return selectedUnit;
@@ -226,44 +311,55 @@ namespace Battlefield
 		private ArmyUnit Ready( BaseCamp p1 )
 		{
 			Console.WriteLine(
-				$"Select a unit: (1){nameof( Airplane )}, (2){nameof( Artillery )}, (3){nameof( Infantry )}, (4){nameof( Tank )} " );
-
-			var choice = int.Parse( Console.ReadKey().KeyChar.ToString() );
-			Console.WriteLine();
+				$"Select a unit: (1){nameof( Airplane )}, (2){nameof( Artillery )}, (3){nameof( Infantry )}, (4){nameof( Tank )}" );
 
 			ArmyUnit selectedUnit = null;
-			int input;
 
-			switch ( choice )
+			try
 			{
-				case 1 :
-					selectedUnit = this.GetSelectedUnit( p1, typeof( Airplane ) );
+				var choice = int.Parse( Console.ReadKey().KeyChar.ToString() );
+				Console.WriteLine();
 
-					break;
+				switch ( choice )
+				{
+					case 1 :
+						selectedUnit = this.GetSelectedUnit( p1, typeof( Airplane ) );
 
-				case 2 :
+						break;
 
-					selectedUnit = this.GetSelectedUnit( p1, typeof( Artillery ) );
+					case 2 :
 
-					break;
+						selectedUnit = this.GetSelectedUnit( p1, typeof( Artillery ) );
 
-				case 3 :
+						break;
 
-					selectedUnit = this.GetSelectedUnit( p1, typeof( Infantry ) );
+					case 3 :
 
-					break;
+						selectedUnit = this.GetSelectedUnit( p1, typeof( Infantry ) );
 
-				case 4 :
+						break;
 
-					selectedUnit = this.GetSelectedUnit( p1, typeof( Tank ) );
+					case 4 :
 
-					break;
+						selectedUnit = this.GetSelectedUnit( p1, typeof( Tank ) );
 
-				default :
-					Console.WriteLine( "Please select one of the provided options!" );
-					this.Ready( p1 );
+						break;
 
-					break;
+					default :
+						Console.WriteLine( "Please select one of the provided options!" );
+						this.Ready( p1 );
+
+						break;
+				}
+			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "Ready" );
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong when preparing the selected unit (error 107)!" );
+				Console.WriteLine();
+
+				this.Ready( p1 );
 			}
 
 			return selectedUnit;
@@ -277,19 +373,36 @@ namespace Battlefield
 		/// <returns></returns>
 		private ArmyUnit GetAttackedUnit( BaseCamp p2, Type type )
 		{
-			ArmyUnit selectedUnit;
-			var units = p2.Army.Where( u => u.GetType() == type ).ToList();
+			ArmyUnit selectedUnit = null;
 
-			foreach ( var unit in units )
+			try
 			{
-				Console.WriteLine( $"Unit #{unit.Id} has {unit.Health} health, {unit.Defense} defense and {unit.Range} range" );
+				var units = p2.Army
+					.Where( u => u.GetType() == type )
+					.OrderByDescending( u => u.Health )
+					.ThenByDescending( u => u.Defense )
+					.ToList();
+
+				foreach ( var unit in units )
+				{
+					Console.WriteLine( $"Unit #{unit.Id} has {unit.Health} health, {unit.Defense} defense and {unit.Range} range" );
+				}
+
+				Console.Write( "Choose a unit: " );
+				var unitId = int.Parse( Console.ReadLine() );
+				Console.WriteLine();
+
+				selectedUnit = units.FirstOrDefault( u => u.Id == unitId );
 			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "GetAttackedUnit" );
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong when choosing a unit (error 106)!" );
+				Console.WriteLine();
 
-			Console.Write( "Choose a unit: " );
-			var unitId = int.Parse( Console.ReadLine() );
-			Console.WriteLine();
-
-			selectedUnit = units.FirstOrDefault( u => u.Id == unitId );
+				this.GetAttackedUnit( p2, type );
+			}
 
 			return selectedUnit;
 		}
@@ -302,20 +415,37 @@ namespace Battlefield
 		/// <returns></returns>
 		private ArmyUnit GetSelectedUnit( BaseCamp p1, Type type )
 		{
-			ArmyUnit selectedUnit;
-			var units = p1.Army.Where( u => u.GetType() == type ).ToList();
+			ArmyUnit selectedUnit = null;
 
-			foreach ( var unit in units )
+			try
 			{
-				Console.WriteLine(
-					$"Unit #{unit.Id} has {unit.Health} health, {unit.AttackPower} attack power and {unit.Range} range" );
+				var units = p1.Army
+					.Where( u => u.GetType() == type )
+					.OrderByDescending( u => u.AttackPower )
+					.ThenByDescending( u => u.Range )
+					.ToList();
+
+				foreach ( var unit in units )
+				{
+					Console.WriteLine(
+						$"Unit #{unit.Id} has {unit.Health} health, {unit.AttackPower} attack power and {unit.Range} range" );
+				}
+
+				Console.Write( "Choose a unit: " );
+				var unitId = int.Parse( Console.ReadLine() );
+				Console.WriteLine();
+
+				selectedUnit = units.FirstOrDefault( u => u.Id == unitId );
 			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "GetSelectedUnit" );
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong when selecting a unit (error 105)!" );
+				Console.WriteLine();
 
-			Console.Write( "Choose a unit: " );
-			var unitId = int.Parse( Console.ReadLine() );
-			Console.WriteLine();
-
-			selectedUnit = units.FirstOrDefault( u => u.Id == unitId );
+				this.GetSelectedUnit( p1, type );
+			}
 
 			return selectedUnit;
 		}
@@ -330,20 +460,21 @@ namespace Battlefield
 				this.player2.PurchaseUnit( new Airplane() );
 			}
 
-			for ( int i = 0 ; i < 4 ; i++ )
-			{
-				this.player2.PurchaseUnit( new Artillery() );
-			}
-
-			for ( int i = 0 ; i < 8 ; i++ )
-			{
-				this.player2.PurchaseUnit( new Infantry() );
-			}
-
-			for ( int i = 0 ; i < 3 ; i++ )
-			{
-				this.player2.PurchaseUnit( new Tank() );
-			}
+			//
+			//			for ( int i = 0 ; i < 4 ; i++ )
+			//			{
+			//				this.player2.PurchaseUnit( new Artillery() );
+			//			}
+			//
+			//			for ( int i = 0 ; i < 8 ; i++ )
+			//			{
+			//				this.player2.PurchaseUnit( new Infantry() );
+			//			}
+			//
+			//			for ( int i = 0 ; i < 3 ; i++ )
+			//			{
+			//				this.player2.PurchaseUnit( new Tank() );
+			//			}
 		}
 
 		/// <summary>
@@ -355,225 +486,321 @@ namespace Battlefield
 			Console.WriteLine(
 				$"Please select which units do you wish to have in your army: \r\n(1){nameof( Airplane )}, (2){nameof( Artillery )}, (3){nameof( Infantry )}, (4){nameof( Tank )}" );
 
-			var unitChoice = int.Parse( Console.ReadKey().KeyChar.ToString() );
-			int continuePurchase;
-			Console.WriteLine();
-			Console.Write( "You have selected " );
+			var userInput = Console.ReadKey().KeyChar.ToString();
+			int unitChoice;
 
-			switch ( unitChoice )
+			if ( !int.TryParse( userInput, out unitChoice ) )
 			{
-				#region case 1
-
-				case 1 :
-					Console.WriteLine( nameof( Airplane ) + "." );
-					Console.WriteLine( $"\t{nameof( Airplane )} has the following statistics:" );
-					Console.WriteLine( $"\t  Health: {AirplaneConstants.minHealth}-{AirplaneConstants.maxHealth} pts" );
-					Console.WriteLine( $"\t  Defense: {AirplaneConstants.minDefense}-{AirplaneConstants.maxDefense} pts" );
-					Console.WriteLine( $"\t  Attack: {AirplaneConstants.minAttackPower}-{AirplaneConstants.maxAttackPower} pts" );
-					Console.WriteLine( $"\t  Range: {AirplaneConstants.minAttackRange}-{AirplaneConstants.maxAttackRange} pts" );
-					Console.WriteLine( $"\t  Cost: {AirplaneConstants.Cost} bfc" );
-					Console.WriteLine( "Would you like to purchase this unit? (1)Yes, (2)No" );
-					continuePurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
-					Console.WriteLine();
-
-					if ( continuePurchase == 1 )
-					{
-						Console.WriteLine( "How many would you want? " );
-						var quantity = int.Parse( Console.ReadLine() );
-						var sum = quantity * AirplaneConstants.Cost;
-
-						if ( sum <= camp.Resources )
-						{
-							Console.WriteLine( "Confirm purchase:  (1)Yes (2)No" );
-							var confirmPurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
-							Console.WriteLine();
-
-							if ( confirmPurchase == 1 )
-							{
-								this.Buy( camp, quantity, typeof( Airplane ) );
-							}
-							else
-							{
-								this.Shop( camp );
-							}
-						}
-						else
-						{
-							Console.WriteLine( "Invalid funds!" );
-							this.Shop( camp );
-						}
-					}
-					else
-					{
-						this.Shop( camp );
-					}
-
-					break;
-
-				#endregion
-
-				#region case 2
-
-				case 2 :
-					Console.WriteLine( nameof( Artillery ) + "." );
-					Console.WriteLine( $"\t{nameof( Artillery )} has the following statistics:" );
-					Console.WriteLine( $"\t  Health: {ArtilleryConstants.minHealth}-{ArtilleryConstants.maxHealth} pts" );
-					Console.WriteLine( $"\t  Defense: {ArtilleryConstants.minDefense}-{ArtilleryConstants.maxDefense} pts" );
-					Console.WriteLine( $"\t  Attack: {ArtilleryConstants.minAttackPower}-{ArtilleryConstants.maxAttackPower} pts" );
-					Console.WriteLine( $"\t  Range: {ArtilleryConstants.minAttackRange}-{ArtilleryConstants.maxAttackRange} pts" );
-					Console.WriteLine( $"\t  Cost: {ArtilleryConstants.Cost} bfc" );
-					Console.WriteLine( "Would you like to purchase this unit? (1)Yes, (2)No" );
-					continuePurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
-					Console.WriteLine();
-
-					if ( continuePurchase == 1 )
-					{
-						Console.WriteLine( "How many would you want? " );
-						var quantity = int.Parse( Console.ReadLine() );
-						var sum = quantity * ArtilleryConstants.Cost;
-
-						if ( sum <= camp.Resources )
-						{
-							Console.WriteLine( "Confirm purchase:  (1)Yes (2)No" );
-							var confirmPurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
-							Console.WriteLine();
-
-							if ( confirmPurchase == 1 )
-							{
-								this.Buy( camp, quantity, typeof( Artillery ) );
-							}
-							else
-							{
-								this.Shop( camp );
-							}
-						}
-						else
-						{
-							Console.WriteLine( "Invalid funds!" );
-							this.Shop( camp );
-						}
-					}
-					else
-					{
-						this.Shop( camp );
-					}
-
-					break;
-
-				#endregion
-
-				#region case 3
-
-				case 3 :
-					Console.WriteLine( nameof( Infantry ) + "." );
-					Console.WriteLine( $"\t{nameof( Infantry )} has the following statistics:" );
-					Console.WriteLine( $"\t  Health: {InfantryConstants.minHealth}-{InfantryConstants.maxHealth} pts" );
-					Console.WriteLine( $"\t  Defense: {InfantryConstants.minDefense}-{InfantryConstants.maxDefense} pts" );
-					Console.WriteLine( $"\t  Attack: {InfantryConstants.minAttackPower}-{InfantryConstants.maxAttackPower} pts" );
-					Console.WriteLine( $"\t  Range: {InfantryConstants.minAttackRange}-{InfantryConstants.maxAttackRange} pts" );
-					Console.WriteLine( $"\t  Cost: {InfantryConstants.Cost} bfc" );
-					Console.WriteLine( "Would you like to purchase this unit? (1)Yes, (2)No" );
-					continuePurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
-					Console.WriteLine();
-
-					if ( continuePurchase == 1 )
-					{
-						Console.WriteLine( "How many would you want? " );
-						var quantity = int.Parse( Console.ReadLine() );
-						var sum = quantity * InfantryConstants.Cost;
-
-						if ( sum <= camp.Resources )
-						{
-							Console.WriteLine( "Confirm purchase:  (1)Yes (2)No" );
-							var confirmPurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
-							Console.WriteLine();
-
-							if ( confirmPurchase == 1 )
-							{
-								this.Buy( camp, quantity, typeof( Infantry ) );
-							}
-							else
-							{
-								this.Shop( camp );
-							}
-						}
-						else
-						{
-							Console.WriteLine( "Invalid funds!" );
-							this.Shop( camp );
-						}
-					}
-					else
-					{
-						this.Shop( camp );
-					}
-
-					break;
-
-				#endregion
-
-				#region case 4
-
-				case 4 :
-					Console.WriteLine( nameof( Tank ) + "." );
-					Console.WriteLine( $"\t{nameof( Tank )} has the following statistics:" );
-					Console.WriteLine( $"\t  Health: {TankConstants.minHealth}-{TankConstants.maxHealth} pts" );
-					Console.WriteLine( $"\t  Defense: {TankConstants.minDefense}-{TankConstants.maxDefense} pts" );
-					Console.WriteLine( $"\t  Attack: {TankConstants.minAttackPower}-{TankConstants.maxAttackPower} pts" );
-					Console.WriteLine( $"\t  Range: {TankConstants.minAttackRange}-{TankConstants.maxAttackRange} pts" );
-					Console.WriteLine( $"\t  Cost: {TankConstants.Cost} bfc" );
-					Console.WriteLine( "Would you like to purchase this unit? (1)Yes, (2)No" );
-					continuePurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
-					Console.WriteLine();
-
-					if ( continuePurchase == 1 )
-					{
-						Console.WriteLine( "How many would you want? " );
-						var quantity = int.Parse( Console.ReadLine() );
-						var sum = quantity * TankConstants.Cost;
-
-						if ( sum <= camp.Resources )
-						{
-							Console.WriteLine( "Confirm purchase:  (1)Yes (2)No" );
-							var confirmPurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
-							Console.WriteLine();
-
-							if ( confirmPurchase == 1 )
-							{
-								this.Buy( camp, quantity, typeof( Tank ) );
-							}
-							else
-							{
-								this.Shop( camp );
-							}
-						}
-						else
-						{
-							Console.WriteLine( "Invalid funds!" );
-							this.Shop( camp );
-						}
-					}
-					else
-					{
-						this.Shop( camp );
-					}
-
-					break;
-
-				#endregion
+				userInput = Console.ReadKey().KeyChar.ToString();
 			}
 
-			Console.WriteLine( "Would you like to add more units? (1)Yes  (2)No" );
-			var continueShopping = int.Parse( Console.ReadKey().KeyChar.ToString() );
-			Console.WriteLine();
-
-			if ( continueShopping == 1 )
+			try
 			{
+				unitChoice = int.Parse( userInput );
+
+				int continuePurchase;
+				int confirmPurchase;
+
+				Console.WriteLine();
+				Console.Write( "You have selected " );
+
+				switch ( unitChoice )
+				{
+					#region case 1
+
+					case 1 :
+						Console.WriteLine( nameof( Airplane ) + "." );
+						Console.WriteLine( $"\t{nameof( Airplane )} has the following statistics:" );
+						Console.WriteLine( $"\t  Health: {AirplaneConstants.minHealth}-{AirplaneConstants.maxHealth} pts" );
+						Console.WriteLine( $"\t  Defense: {AirplaneConstants.minDefense}-{AirplaneConstants.maxDefense} pts" );
+						Console.WriteLine( $"\t  Attack: {AirplaneConstants.minAttackPower}-{AirplaneConstants.maxAttackPower} pts" );
+						Console.WriteLine( $"\t  Range: {AirplaneConstants.minAttackRange}-{AirplaneConstants.maxAttackRange} pts" );
+						Console.WriteLine( $"\t  Cost: {AirplaneConstants.Cost} bfc" );
+						continuePurchase = this.CheckIfUserWantsSelectedUnit();
+
+						if ( continuePurchase == 1 )
+						{
+							int quantity = this.ConfirmUnitQuantity();
+							var sum = quantity * AirplaneConstants.Cost;
+
+							if ( sum <= camp.Resources )
+							{
+								confirmPurchase = this.ConfirmPurchase();
+
+								if ( confirmPurchase == 1 )
+								{
+									this.Buy( camp, quantity, typeof( Airplane ) );
+								}
+								else
+								{
+									this.Shop( camp );
+								}
+							}
+							else
+							{
+								Console.WriteLine( "Invalid funds!" );
+								this.Shop( camp );
+							}
+						}
+						else
+						{
+							this.Shop( camp );
+						}
+
+						break;
+
+					#endregion
+
+					#region case 2
+
+					case 2 :
+						Console.WriteLine( nameof( Artillery ) + "." );
+						Console.WriteLine( $"\t{nameof( Artillery )} has the following statistics:" );
+						Console.WriteLine( $"\t  Health: {ArtilleryConstants.minHealth}-{ArtilleryConstants.maxHealth} pts" );
+						Console.WriteLine( $"\t  Defense: {ArtilleryConstants.minDefense}-{ArtilleryConstants.maxDefense} pts" );
+						Console.WriteLine( $"\t  Attack: {ArtilleryConstants.minAttackPower}-{ArtilleryConstants.maxAttackPower} pts" );
+						Console.WriteLine( $"\t  Range: {ArtilleryConstants.minAttackRange}-{ArtilleryConstants.maxAttackRange} pts" );
+						Console.WriteLine( $"\t  Cost: {ArtilleryConstants.Cost} bfc" );
+						continuePurchase = this.CheckIfUserWantsSelectedUnit();
+
+						if ( continuePurchase == 1 )
+						{
+							var quantity = this.ConfirmUnitQuantity();
+							var sum = quantity * ArtilleryConstants.Cost;
+
+							if ( sum <= camp.Resources )
+							{
+								confirmPurchase = this.ConfirmPurchase();
+
+								if ( confirmPurchase == 1 )
+								{
+									this.Buy( camp, quantity, typeof( Artillery ) );
+								}
+								else
+								{
+									this.Shop( camp );
+								}
+							}
+							else
+							{
+								Console.WriteLine( "Invalid funds!" );
+								this.Shop( camp );
+							}
+						}
+						else
+						{
+							this.Shop( camp );
+						}
+
+						break;
+
+					#endregion
+
+					#region case 3
+
+					case 3 :
+						Console.WriteLine( nameof( Infantry ) + "." );
+						Console.WriteLine( $"\t{nameof( Infantry )} has the following statistics:" );
+						Console.WriteLine( $"\t  Health: {InfantryConstants.minHealth}-{InfantryConstants.maxHealth} pts" );
+						Console.WriteLine( $"\t  Defense: {InfantryConstants.minDefense}-{InfantryConstants.maxDefense} pts" );
+						Console.WriteLine( $"\t  Attack: {InfantryConstants.minAttackPower}-{InfantryConstants.maxAttackPower} pts" );
+						Console.WriteLine( $"\t  Range: {InfantryConstants.minAttackRange}-{InfantryConstants.maxAttackRange} pts" );
+						Console.WriteLine( $"\t  Cost: {InfantryConstants.Cost} bfc" );
+						continuePurchase = this.CheckIfUserWantsSelectedUnit();
+
+						if ( continuePurchase == 1 )
+						{
+							var quantity = this.ConfirmUnitQuantity();
+							var sum = quantity * InfantryConstants.Cost;
+
+							if ( sum <= camp.Resources )
+							{
+								confirmPurchase = this.ConfirmPurchase();
+
+								if ( confirmPurchase == 1 )
+								{
+									this.Buy( camp, quantity, typeof( Infantry ) );
+								}
+								else
+								{
+									this.Shop( camp );
+								}
+							}
+							else
+							{
+								Console.WriteLine( "Invalid funds!" );
+								this.Shop( camp );
+							}
+						}
+						else
+						{
+							this.Shop( camp );
+						}
+
+						break;
+
+					#endregion
+
+					#region case 4
+
+					case 4 :
+						Console.WriteLine( nameof( Tank ) + "." );
+						Console.WriteLine( $"\t{nameof( Tank )} has the following statistics:" );
+						Console.WriteLine( $"\t  Health: {TankConstants.minHealth}-{TankConstants.maxHealth} pts" );
+						Console.WriteLine( $"\t  Defense: {TankConstants.minDefense}-{TankConstants.maxDefense} pts" );
+						Console.WriteLine( $"\t  Attack: {TankConstants.minAttackPower}-{TankConstants.maxAttackPower} pts" );
+						Console.WriteLine( $"\t  Range: {TankConstants.minAttackRange}-{TankConstants.maxAttackRange} pts" );
+						Console.WriteLine( $"\t  Cost: {TankConstants.Cost} bfc" );
+						continuePurchase = this.CheckIfUserWantsSelectedUnit();
+
+						if ( continuePurchase == 1 )
+						{
+							var quantity = this.ConfirmUnitQuantity();
+							var sum = quantity * TankConstants.Cost;
+
+							if ( sum <= camp.Resources )
+							{
+								confirmPurchase = this.ConfirmPurchase();
+
+								if ( confirmPurchase == 1 )
+								{
+									this.Buy( camp, quantity, typeof( Tank ) );
+								}
+								else
+								{
+									this.Shop( camp );
+								}
+							}
+							else
+							{
+								Console.WriteLine( "Invalid funds!" );
+								this.Shop( camp );
+							}
+						}
+						else
+						{
+							this.Shop( camp );
+						}
+
+						break;
+
+					#endregion
+				}
+
+				this.AddMoreUnits( camp );
+			}
+			catch ( Exception ex )
+			{
+				ErrorLogging( ex, "Shop" );
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong while shopping (error 101)!" );
+				Console.WriteLine();
+
 				this.Shop( camp );
 			}
-			else
+		}
+
+		private int ConfirmUnitQuantity()
+		{
+			int quantity = 0;
+			Console.WriteLine( "How many would you want? " );
+
+			try
 			{
-				Console.WriteLine( "Let the battle begin!" );
+				quantity = int.Parse( Console.ReadLine() );
+			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "ConfirmUnitQuantity" );
+
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong while confirming unit quantity (error 109)!" );
+				Console.WriteLine();
+
+				this.ConfirmUnitQuantity();
+			}
+
+			return quantity;
+		}
+
+		private int ConfirmPurchase()
+		{
+			int confirmPurchase = 1;
+
+			try
+			{
+				Console.WriteLine( "Confirm purchase:  (1)Yes (2)No" );
+				confirmPurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
+				Console.WriteLine();
+			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "ConfirmPurchase" );
+
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong while confirming purchase (error 103)!" );
+				Console.WriteLine();
+
+				this.ConfirmPurchase();
+			}
+
+			return confirmPurchase;
+		}
+
+		/// <summary>
+		/// Check if the user wants to buy the selected unit.
+		/// </summary>
+		/// <returns></returns>
+		private int CheckIfUserWantsSelectedUnit()
+		{
+			int continuePurchase = 1;
+
+			try
+			{
+				Console.WriteLine( "Would you like to purchase this unit? (1)Yes, (2)No" );
+				continuePurchase = int.Parse( Console.ReadKey().KeyChar.ToString() );
+				Console.WriteLine();
+			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "CheckIfUserWantsSelectedUnit" );
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong when confirming if you want to buy the selected unit type (error 104)!" );
+				Console.WriteLine();
+
+				this.CheckIfUserWantsSelectedUnit();
+			}
+
+			return continuePurchase;
+		}
+
+		/// <summary>
+		/// Ask the user if he wants to purchase more units
+		/// </summary>
+		/// <param name="camp"></param>
+		private void AddMoreUnits( BaseCamp camp )
+		{
+			Console.WriteLine( $"You currently have {camp.Resources} bfc" );
+			Console.WriteLine( "Would you like to add more units? (1)Yes  (2)No" );
+
+			try
+			{
+				var continueShopping = int.Parse( Console.ReadKey().KeyChar.ToString() );
+				Console.WriteLine();
+
+				if ( continueShopping == 1 )
+				{
+					this.Shop( camp );
+				}
+			}
+			catch ( Exception e )
+			{
+				ErrorLogging( e, "AddMoreUnits" );
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong while adding more units (error 102)!" );
+				Console.WriteLine();
+
+				this.AddMoreUnits( camp );
 			}
 		}
 
@@ -585,13 +812,43 @@ namespace Battlefield
 		/// <param name="className"></param>
 		private void Buy( BaseCamp player, int quantity, Type className )
 		{
-			for ( int i = 0 ; i < quantity ; i++ )
+			try
 			{
-				var a = Activator.CreateInstance( className );
-				player.PurchaseUnit( ( ArmyUnit ) a );
-			}
+				for ( int i = 0 ; i < quantity ; i++ )
+				{
+					var a = Activator.CreateInstance( className );
+					player.PurchaseUnit( ( ArmyUnit ) a );
+				}
 
-			Console.WriteLine( $"{quantity} {className.Name} units successfully purchased!" );
+				Console.WriteLine( $"{quantity} {className.Name} units successfully purchased!" );
+			}
+			catch ( Exception ex )
+			{
+				ErrorLogging( ex, "Buy" );
+				Console.WriteLine();
+				Console.WriteLine( "Something went wrong with purchasing the Unit (error 100)!" );
+				Console.WriteLine();
+
+				this.Buy( player, quantity, className );
+			}
+		}
+
+		private static void ErrorLogging( Exception ex, string method )
+		{
+			var date = DateTime.Now.ToShortDateString();
+			var time = DateTime.Now.ToLongTimeString();
+
+			if ( Directory.Exists( @"..\..\..\Statistics\Logs" ) )
+			{
+				File.AppendAllText( $@"..\..\..\Statistics\Logs\{date}_{method}_error.log", $"{time} {ex} \r\n" );
+				File.AppendAllText( $@"..\..\..\Statistics\Logs\{date}_{method}_error.log", Environment.NewLine );
+			}
+			else
+			{
+				Directory.CreateDirectory( @"..\..\..\Statistics\Logs" );
+				File.AppendAllText( $@"..\..\..\Statistics\Logs\{date}_{method}_error.log", $"{time} {ex}" );
+				File.AppendAllText( $@"..\..\..\Statistics\Logs\{date}_{method}_error.log", Environment.NewLine );
+			}
 		}
 	}
 }

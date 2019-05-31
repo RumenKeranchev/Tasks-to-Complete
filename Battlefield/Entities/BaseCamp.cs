@@ -53,7 +53,8 @@ namespace Battlefield.Entities
 			}
 		}
 
-		public int Resources { get; private set; }
+		//TODO: Set shouldnt be public
+		public int Resources { get; set; }
 
 		#endregion
 
@@ -68,10 +69,9 @@ namespace Battlefield.Entities
 			}
 		}
 
-		//TODO: BUG -> It doesnt actually remove from army
 		public void RemoveFromArmy( ArmyUnit unit )
 		{
-			if ( unit != null && !unit.IsAlive() )
+			if ( unit != null && unit.IsDead() )
 			{
 				this.army.Remove( unit );
 			}

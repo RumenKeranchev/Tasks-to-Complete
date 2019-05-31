@@ -2,7 +2,7 @@
 {
 	public interface IUnit
 	{
-		bool IsAlive();
+		bool IsDead();
 
 		void SpecialAbility();
 	}

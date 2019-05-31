@@ -92,18 +92,17 @@ namespace Battlefield.Entities.Army
 		/// <returns>Returns the remaining health of the attacked unit</returns>
 		public int Attack( ArmyUnit unit )
 		{
-			double rangeDifferense = ( this.Range - unit.Range ) / 100;
+			double rangeDifferense = ( double ) ( this.Range - unit.Range ) / 100;
 			int damage;
 
-			if ( rangeDifferense > 1 )
+			if ( rangeDifferense >= 1 )
 			{
 				rangeDifferense -= 1;
 			}
 
 			if ( rangeDifferense > 0 )
 			{
-				damage = ( int ) Math.Round( this.AttackPower - unit.Defense -
-				                             ( double ) ( this.AttackPower * rangeDifferense ) );
+				damage = ( int ) Math.Round( this.AttackPower - unit.Defense - ( this.AttackPower * rangeDifferense ) );
 
 				if ( damage < 0 )
 				{
@@ -114,8 +113,7 @@ namespace Battlefield.Entities.Army
 			}
 			else
 			{
-				damage = ( int ) Math.Round( this.AttackPower - unit.Defense +
-				                             ( double ) ( this.AttackPower * rangeDifferense ) );
+				damage = ( int ) Math.Round( this.AttackPower - unit.Defense + ( this.AttackPower * rangeDifferense ) );
 
 				if ( damage < 0 )
 				{
@@ -128,14 +126,14 @@ namespace Battlefield.Entities.Army
 			return damage;
 		}
 
-		public bool IsAlive()
+		public bool IsDead()
 		{
 			if ( this.Health < 0 )
 			{
-				return false;
+				return true;
 			}
 
-			return true;
+			return false;
 		}
 
 		public abstract void SpecialAbility();

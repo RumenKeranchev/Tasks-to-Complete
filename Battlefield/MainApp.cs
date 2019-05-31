@@ -12,6 +12,10 @@ namespace Battlefield
 		{
 			var battle = Battle.GetInstance();
 			battle.StartBattle();
+
+			//TODO: Add a "coin flip to determine which player has first move"
+
+			//BUG: when the quantity was firstly invalid, the next call even if correct doesnt recognize the input
 		}
 
 		/// <summary>
